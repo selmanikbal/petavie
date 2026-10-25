@@ -1,0 +1,83 @@
+{
+  "expo": {
+    "name": "Petavie",
+    "slug": "petavie",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "petavie",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.petavie.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "softwareKeyboardLayoutMode": "resize",
+      "package": "com.petavie.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#1f8a8a",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["tr"],
+            "android": ["tr"]
+          }
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#1f8a8a",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Petavie, evcil hayvan fotoğraflarını seçmek için galerine erişmek istiyor.",
+          "cameraPermission": "Petavie, evcil hayvan fotoğrafı çekmek için kamerana erişmek istiyor.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Petavie, yakındaki veteriner, pet shop ve kuaförleri göstermek için konumuna erişmek istiyor."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#1f8a8a",
+          "sounds": ["./assets/sounds/petavie-kus-dogasi-3sn.wav"]
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "eb41f538-2328-4bdb-818e-c9bd3853dcd1"
+      }
+    },
+    "owner": "selmanreiss-team"
+  }
+}

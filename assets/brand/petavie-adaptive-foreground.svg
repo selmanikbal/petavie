@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-hidden="true">
+  <g transform="translate(512 512) scale(6.5) translate(-50 -57)">
+    <g fill="#faf7f2" stroke="none">
+      <ellipse cx="22" cy="46" rx="8" ry="11" transform="rotate(-22 22 46)"/>
+      <ellipse cx="39" cy="28" rx="8.5" ry="12"/>
+      <ellipse cx="61" cy="28" rx="8.5" ry="12"/>
+      <ellipse cx="78" cy="46" rx="8" ry="11" transform="rotate(22 78 46)"/>
+      <path d="M50 50 C37 50 26 61 26 72 C26 81 34 86 42 83 C46 81.5 48 81 50 81 C52 81 54 81.5 58 83 C66 86 74 81 74 72 C74 61 63 50 50 50 Z"/>
+    </g>
+    <polyline
+      points="35,70 43,70 47.5,61 53,79 57,70 65,70"
+      fill="none"
+      stroke="#e8604c"
+      stroke-width="3.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"/>
+  </g>
+</svg>
