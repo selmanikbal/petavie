@@ -35,7 +35,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
     name: env.name,
-    slug: 'petavie',
+    // Must match the EAS project linked by extra.eas.projectId (@selmanreiss-team/selman-reis).
+    slug: 'selman-reis',
     scheme: env.scheme,
     ios: {
       ...config.ios,
