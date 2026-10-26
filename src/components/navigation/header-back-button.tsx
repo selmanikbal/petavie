@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { Platform, Pressable, Text } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type HeaderBackButtonProps = {
   label?: string;
@@ -14,6 +14,7 @@ export function HeaderBackButton({
   label = 'Geri',
   iconOnly = false,
 }: HeaderBackButtonProps) {
+  const colors = useThemeColors();
   const router = useRouter();
 
   function handlePress() {
@@ -32,7 +33,7 @@ export function HeaderBackButton({
         onPress={handlePress}
         hitSlop={8}
         className="h-10 w-10 items-center justify-center rounded-full bg-surface-tint active:opacity-80">
-        <Ionicons name="chevron-back" size={20} color={BrandColors.ink900} />
+        <Ionicons name="chevron-back" size={20} color={colors.ink900} />
       </Pressable>
     );
   }
@@ -48,7 +49,7 @@ export function HeaderBackButton({
       <Ionicons
         name={Platform.OS === 'ios' ? 'chevron-back' : 'arrow-back'}
         size={24}
-        color={BrandColors.ink900}
+        color={colors.ink900}
       />
       {Platform.OS === 'ios' ? <Text className="text-base text-ink-900">{label}</Text> : null}
     </Pressable>

@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 
@@ -30,6 +30,7 @@ type AvatarProps = {
 };
 
 export function Avatar({ uri, name, size = 'md', fallbackIcon = 'paw' }: AvatarProps) {
+  const colors = useThemeColors();
   const initial = name?.trim().charAt(0).toUpperCase();
 
   return (
@@ -48,7 +49,7 @@ export function Avatar({ uri, name, size = 'md', fallbackIcon = 'paw' }: AvatarP
       ) : initial ? (
         <Text className={`${textClass[size]} font-bold text-brand-600`}>{initial}</Text>
       ) : (
-        <Ionicons name={fallbackIcon} size={iconSize[size]} color={BrandColors.brand600} />
+        <Ionicons name={fallbackIcon} size={iconSize[size]} color={colors.brand600} />
       )}
     </View>
   );

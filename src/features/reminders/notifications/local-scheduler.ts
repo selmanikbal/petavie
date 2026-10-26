@@ -8,11 +8,22 @@ import {
 import {
   generateOccurrences,
   parseNotificationIds,
+  serializeNotificationIds,
 } from '@/features/reminders/schedule-utils';
+import { readReminders, writeReminders } from '@/services/demo/store';
 import type { Reminder } from '@/types/database';
 import { fromISODate } from '@/utils/date';
 
+/**
+ * iOS keeps at most 64 pending local notifications per app and silently drops
+ * the rest. We schedule only the soonest occurrences across ALL reminders and
+ * top the window up on every app launch and every reminder change.
+ */
+export const MAX_PENDING_NOTIFICATIONS = 60;
+
 let isConfigured = false;
+let channelReady: Promise<void> | null = null;
+let syncChain: Promise<void> = Promise.resolve();
 
 export function configureLocalNotifications(): void {
   if (isConfigured) return;
@@ -29,79 +40,123 @@ export function configureLocalNotifications(): void {
   isConfigured = true;
 }
 
-export async function ensureNotificationPermissions(): Promise<boolean> {
+/** Android: the channel decides the sound, so it must exist before scheduling. */
+export function ensureReminderChannel(): Promise<void> {
+  if (Platform.OS !== 'android') return Promise.resolve();
+
+  channelReady ??= Notifications.setNotificationChannelAsync(REMINDER_NOTIFICATION_CHANNEL_ID, {
+    name: 'Hatırlatmalar',
+    importance: Notifications.AndroidImportance.HIGH,
+    sound: REMINDER_NOTIFICATION_SOUND,
+  })
+    .then(() => undefined)
+    .catch((error: unknown) => {
+      channelReady = null;
+      throw error;
+    });
+
+  return channelReady;
+}
+
+export async function ensureNotificationPermissions(
+  options: { request?: boolean } = {},
+): Promise<boolean> {
   if (Platform.OS === 'web') return false;
 
   configureLocalNotifications();
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(REMINDER_NOTIFICATION_CHANNEL_ID, {
-      name: 'Hatırlatmalar',
-      importance: Notifications.AndroidImportance.HIGH,
-      sound: REMINDER_NOTIFICATION_SOUND,
-    });
-  }
+  await ensureReminderChannel();
 
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
+  if (options.request === false) return false;
 
   const requested = await Notifications.requestPermissionsAsync();
   return requested.granted;
 }
 
-export async function scheduleLocalReminderNotifications(
-  reminder: Pick<
-    Reminder,
-    | 'id'
-    | 'title'
-    | 'notes'
-    | 'remind_at'
-    | 'schedule_mode'
-    | 'recurrence'
-    | 'range_start'
-    | 'range_end'
-  >,
-): Promise<string[]> {
-  if (Platform.OS === 'web') return [];
+function toRemindTime(remindAtIso: string): string | null {
+  const remindAt = new Date(remindAtIso);
+  if (Number.isNaN(remindAt.getTime())) return null;
+  return `${`${remindAt.getHours()}`.padStart(2, '0')}:${`${remindAt.getMinutes()}`.padStart(2, '0')}`;
+}
 
-  const granted = await ensureNotificationPermissions();
-  if (!granted) return [];
+function upcomingOccurrences(reminder: Reminder): Date[] {
+  if (reminder.completed_at) return [];
 
-  const remindAt = new Date(reminder.remind_at);
-  if (Number.isNaN(remindAt.getTime())) return [];
-
-  const remindTime = `${`${remindAt.getHours()}`.padStart(2, '0')}:${`${remindAt.getMinutes()}`.padStart(2, '0')}`;
+  const remindTime = toRemindTime(reminder.remind_at);
   const rangeStart = fromISODate(reminder.range_start);
-  if (!rangeStart) return [];
+  if (!remindTime || !rangeStart) return [];
 
   const rangeEnd = reminder.range_end ? fromISODate(reminder.range_end) : null;
-  const occurrences = generateOccurrences({
+  return generateOccurrences({
     scheduleMode: reminder.schedule_mode,
     recurrence: reminder.recurrence,
     rangeStart,
     rangeEnd,
     remindTime,
   });
+}
 
-  const ids: string[] = [];
+async function runSync(requestPermission: boolean): Promise<void> {
+  if (Platform.OS === 'web') return;
 
-  for (const date of occurrences) {
-    const id = await Notifications.scheduleNotificationAsync({
-      content: {
-        title: reminder.title,
-        body: reminder.notes ?? 'Hatırlatma zamanı geldi.',
-        data: { reminderId: reminder.id },
-        sound: REMINDER_NOTIFICATION_SOUND,
-      },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date,
-      },
-    });
-    ids.push(id);
+  const reminders = await readReminders();
+  const active = reminders.filter((row) => !row.completed_at);
+
+  // All pending notifications in this app belong to reminders, so start clean.
+  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  const granted =
+    active.length > 0 && (await ensureNotificationPermissions({ request: requestPermission }));
+
+  const idsByReminder = new Map<string, string[]>();
+
+  if (granted) {
+    const queue = active
+      .flatMap((reminder) => upcomingOccurrences(reminder).map((date) => ({ reminder, date })))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, MAX_PENDING_NOTIFICATIONS);
+
+    for (const { reminder, date } of queue) {
+      const id = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: reminder.title,
+          body: reminder.notes ?? 'Hatırlatma zamanı geldi.',
+          data: { reminderId: reminder.id },
+          sound: REMINDER_NOTIFICATION_SOUND,
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date,
+          channelId: REMINDER_NOTIFICATION_CHANNEL_ID,
+        },
+      });
+      idsByReminder.set(reminder.id, [...(idsByReminder.get(reminder.id) ?? []), id]);
+    }
   }
 
-  return ids;
+  // Re-read so we never overwrite a change made while scheduling.
+  const latest = await readReminders();
+  let changed = false;
+  const next = latest.map((row) => {
+    const notificationIds = serializeNotificationIds(idsByReminder.get(row.id) ?? []);
+    if (row.notification_ids === notificationIds && row.notification_id === null) return row;
+    changed = true;
+    return { ...row, notification_ids: notificationIds, notification_id: null };
+  });
+  if (changed) await writeReminders(next);
+}
+
+/**
+ * Rebuilds the pending notification window from stored reminders.
+ * Calls are serialized so concurrent changes cannot double-schedule.
+ */
+export function syncReminderNotifications(
+  options: { requestPermission?: boolean } = {},
+): Promise<void> {
+  const run = syncChain.then(() => runSync(options.requestPermission ?? true));
+  syncChain = run.catch(() => undefined);
+  return run;
 }
 
 export async function cancelLocalReminderNotification(

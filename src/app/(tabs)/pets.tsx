@@ -19,7 +19,7 @@ export default function PetsScreen() {
 
   return (
     <Screen scrollable={hasPets} tabBarInset>
-      <AppTopBar title="Pets" />
+      <AppTopBar title="Dostlarım" />
 
       <View className="mb-5 flex-row items-start justify-between gap-4">
         <View className="flex-1 gap-1">
@@ -60,8 +60,8 @@ export default function PetsScreen() {
         <View className="gap-4">
           <PetList pets={rows} />
           <PromoBanner
-            title="Bakım Takvimini Senkronize Et"
-            description="Hatırlatmalarını takvimde bir arada gör."
+            title="Bakım Takvimini Gör"
+            description="Tüm hatırlatmalarını takvimde bir arada gör."
             onPress={() => router.push('/(tabs)/reminders')}
           />
         </View>

@@ -14,3 +14,5 @@ export type GeoPoint = {
   latitude: number;
   longitude: number;
 };
+
+export type NearbyPlacesByCategory = Record<NearbyPlaceCategory, NearbyPlace[]>;

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
 import { APP_LOCALE } from '@/constants/locale';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { fromISODate, toISODate } from '@/utils/date';
 
 type DateFieldProps = {
@@ -34,6 +34,7 @@ export function DateField({
   maximumDate,
   testID,
 }: DateFieldProps) {
+  const colors = useThemeColors();
   const iso = value ? toISODate(value) : '';
 
   return (
@@ -59,7 +60,7 @@ export function DateField({
             width: '100%',
             height: 52,
             fontSize: 16,
-            color: BrandColors.ink900,
+            color: colors.ink900,
             colorScheme: 'light',
             WebkitAppearance: 'none',
             outline: 'none',

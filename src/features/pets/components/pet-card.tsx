@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { CARD_CLASS } from '@/components/ui/card';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { useVaccinations } from '@/features/health/hooks/use-vaccinations';
 import { GENDER_LABELS, SPECIES_LABELS } from '@/features/pets/schemas';
 import {
@@ -29,6 +29,7 @@ function StatBox({ label, value }: { label: string; value: string }) {
 }
 
 export function PetCard({ pet, onPress, testID }: PetCardProps) {
+  const colors = useThemeColors();
   const vaccinations = useVaccinations(pet.id);
   const weight = formatPetWeight(pet.weight_kg);
   const age = formatPetAgeDetailed(pet.birth_date);
@@ -56,7 +57,7 @@ export function PetCard({ pet, onPress, testID }: PetCardProps) {
             />
           ) : (
             <View className="flex-1 items-center justify-center">
-              <Ionicons name="paw" size={28} color={BrandColors.brand500} />
+              <Ionicons name="paw" size={28} color={colors.brand500} />
             </View>
           )}
         </View>
@@ -71,11 +72,11 @@ export function PetCard({ pet, onPress, testID }: PetCardProps) {
                 {subtitle}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={BrandColors.ink500} />
+            <Ionicons name="chevron-forward" size={18} color={colors.ink500} />
           </View>
 
           {vaccinations.isPending ? (
-            <ActivityIndicator size="small" color={BrandColors.brand500} />
+            <ActivityIndicator size="small" color={colors.brand500} />
           ) : status ? (
             <View
               className={`self-start flex-row items-center gap-1.5 rounded-full px-2.5 py-1 ${
@@ -106,7 +107,7 @@ export function PetCard({ pet, onPress, testID }: PetCardProps) {
       {lastVaccine ? (
         <View className="flex-row items-center justify-between gap-3 border-t border-surface-sunken pt-3">
           <View className="flex-1 flex-row items-center gap-2">
-            <Ionicons name="calendar-outline" size={16} color={BrandColors.ink500} />
+            <Ionicons name="calendar-outline" size={16} color={colors.ink500} />
             <Text className="flex-1 text-sm text-ink-500" numberOfLines={1}>
               {lastVaccine}
             </Text>

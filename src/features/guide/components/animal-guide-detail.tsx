@@ -4,7 +4,11 @@ import { Text, View } from 'react-native';
 import { Accordion } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { AnimalGuideImage } from '@/features/guide/components/animal-guide-image';
-import { CARE_SECTION_LABELS, CARE_SECTION_ORDER } from '@/features/guide/constants';
+import {
+  CARE_SECTION_LABELS,
+  CARE_SECTION_ORDER,
+  GUIDE_IMAGE_CREDIT,
+} from '@/features/guide/constants';
 import type { GuideAnimal } from '@/features/guide/types';
 
 type AnimalGuideDetailProps = {
@@ -77,6 +81,7 @@ export function AnimalGuideDetail({ animal, disclaimer }: AnimalGuideDetailProps
       </Section>
 
       <Text className="text-sm leading-5 text-ink-500">{disclaimer}</Text>
+      <Text className="text-xs leading-4 text-ink-500">{GUIDE_IMAGE_CREDIT}</Text>
     </View>
   );
 }

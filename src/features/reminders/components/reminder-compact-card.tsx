@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import {
   daysUntilOccurrence,
   formatOccurrenceTime,
@@ -32,6 +32,7 @@ export function ReminderCompactCard({
   onComplete,
   completing = false,
 }: ReminderCompactCardProps) {
+  const colors = useThemeColors();
   const router = useRouter();
   const daysUntil = daysUntilOccurrence(new Date(), occurrenceAt);
   const dayLabel = formatUpcomingDayLabel(daysUntil);
@@ -47,7 +48,7 @@ export function ReminderCompactCard({
         onPress={() => router.push(`/reminder/${reminder.id}/edit`)}
         className="min-w-0 flex-1 flex-row items-center gap-3 active:opacity-80">
         <View className="h-8 w-8 items-center justify-center rounded-lg bg-brand-100">
-          <Ionicons name={icon} size={16} color={BrandColors.brand600} />
+          <Ionicons name={icon} size={16} color={colors.brand600} />
         </View>
 
         <View className="min-w-0 flex-1 gap-0.5">
@@ -75,9 +76,9 @@ export function ReminderCompactCard({
           onPress={onComplete}
           className="h-8 w-8 items-center justify-center rounded-full bg-brand-100 active:bg-brand-200">
           {completing ? (
-            <ActivityIndicator size="small" color={BrandColors.brand600} />
+            <ActivityIndicator size="small" color={colors.brand600} />
           ) : (
-            <Ionicons name="checkmark" size={18} color={BrandColors.brand600} />
+            <Ionicons name="checkmark" size={18} color={colors.brand600} />
           )}
         </Pressable>
       ) : null}

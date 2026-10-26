@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ErrorState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import {
   useCompleteReminder,
   useDeleteReminder,
@@ -34,6 +34,7 @@ export function ReminderList({
   showDelete = false,
   emptyActiveLabel = 'Yaklaşan hatırlatma yok.',
 }: ReminderListProps) {
+  const colors = useThemeColors();
   const reminders = useReminders();
   const completeReminder = useCompleteReminder();
   const deleteReminder = useDeleteReminder();
@@ -46,7 +47,7 @@ export function ReminderList({
   if (reminders.isPending) {
     return (
       <View className="items-center gap-2 py-8">
-        <ActivityIndicator color={BrandColors.brand500} />
+        <ActivityIndicator color={colors.brand500} />
         <Text className="text-sm text-ink-500">Hatırlatmalar yükleniyor…</Text>
       </View>
     );

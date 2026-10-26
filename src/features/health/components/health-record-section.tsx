@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ErrorState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { useDeleteHealthRecord } from '@/features/health/hooks/use-health-record-mutations';
 import { useHealthRecords } from '@/features/health/hooks/use-health-records';
 import { formatDateTR, fromISODate } from '@/utils/date';
@@ -18,6 +18,7 @@ type HealthRecordSectionProps = {
 };
 
 export function HealthRecordSection({ petId }: HealthRecordSectionProps) {
+  const colors = useThemeColors();
   const router = useRouter();
   const records = useHealthRecords(petId);
   const deleteRecord = useDeleteHealthRecord(petId);
@@ -35,7 +36,7 @@ export function HealthRecordSection({ petId }: HealthRecordSectionProps) {
 
       {records.isPending ? (
         <View className="items-center gap-2 py-4">
-          <ActivityIndicator color={BrandColors.brand500} />
+          <ActivityIndicator color={colors.brand500} />
           <Text className="text-sm text-ink-500">Sağlık kayıtları yükleniyor…</Text>
         </View>
       ) : records.isError ? (
@@ -74,7 +75,7 @@ export function HealthRecordSection({ petId }: HealthRecordSectionProps) {
                     onPress={() => setDeleteId(row.id)}
                     hitSlop={8}
                     className="rounded-full p-2 active:bg-surface-sunken">
-                    <Ionicons name="trash-outline" size={20} color={BrandColors.ink500} />
+                    <Ionicons name="trash-outline" size={20} color={colors.ink500} />
                   </Pressable>
                 </View>
               </View>

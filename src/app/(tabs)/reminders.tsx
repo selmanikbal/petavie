@@ -8,7 +8,7 @@ import { PrimaryActionButton } from '@/components/ui/primary-action-button';
 import { PromoBanner } from '@/components/ui/promo-banner';
 import { Screen } from '@/components/ui/screen';
 import { EmptyState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { SPECIES_LABELS } from '@/features/pets/schemas';
 import { usePets } from '@/features/pets/hooks/use-pets';
 import { ReminderCalendar } from '@/features/reminders/components/reminder-calendar';
@@ -19,6 +19,7 @@ import { isReminderActive } from '@/features/reminders/utils';
 import { formatDateTR, fromISODate, toISODate } from '@/utils/date';
 
 export default function RemindersScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const pets = usePets();
   const reminders = useReminders();
@@ -55,7 +56,7 @@ export default function RemindersScreen() {
 
   return (
     <Screen scrollable={hasReminders || !hasPets} tabBarInset>
-      <AppTopBar title="Reminders" />
+      <AppTopBar title="Hatırlatmalar" />
 
       <View className="mb-5 flex-row items-start justify-between gap-4">
         <View className="flex-1">
@@ -92,7 +93,7 @@ export default function RemindersScreen() {
 
           {reminders.isPending ? (
             <View className="items-center gap-2 rounded-2xl border border-surface-sunken bg-surface py-10">
-              <ActivityIndicator color={BrandColors.brand500} />
+              <ActivityIndicator color={colors.brand500} />
               <Text className="text-sm text-ink-500">Takvim yükleniyor…</Text>
             </View>
           ) : (

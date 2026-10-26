@@ -4,7 +4,7 @@ import { Platform, Text, View } from 'react-native';
 import { DateField } from '@/components/forms/date-field';
 import { controlBorderClass, FieldShell } from '@/components/forms/field-shell';
 import { IOS_PICKER_LOCALE } from '@/constants/locale';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors, useThemeScheme } from '@/constants/theme';
 import { coerceDate, formatDateTR } from '@/utils/date';
 
 type CalendarDateFieldProps = {
@@ -24,6 +24,8 @@ type CalendarDateFieldProps = {
  * the shared DateField calendar picker.
  */
 export function CalendarDateField(props: CalendarDateFieldProps) {
+  const colors = useThemeColors();
+  const scheme = useThemeScheme();
   if (Platform.OS !== 'ios') {
     return <DateField {...props} pickerDisplay="calendar" placeholder="Takvimden seç" />;
   }
@@ -50,8 +52,8 @@ export function CalendarDateField(props: CalendarDateFieldProps) {
           mode="date"
           display="inline"
           locale={IOS_PICKER_LOCALE}
-          themeVariant="light"
-          accentColor={BrandColors.brand500}
+          themeVariant={scheme}
+          accentColor={colors.brand500}
           minimumDate={minimumDate}
           maximumDate={maximumDate}
           style={{ width: '100%', height: 340 }}

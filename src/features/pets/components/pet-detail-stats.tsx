@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { GENDER_LABELS, SPECIES_LABELS } from '@/features/pets/schemas';
 import { formatPetAgeDetailed, formatPetWeight } from '@/features/pets/utils';
 import type { Pet } from '@/types/database';
@@ -21,10 +21,11 @@ function StatCard({
   value: string;
   hint?: string;
 }) {
+  const colors = useThemeColors();
   return (
     <View className="min-h-[112px] flex-1 rounded-2xl border border-surface-sunken bg-surface p-4">
       <View className="mb-3 h-9 w-9 items-center justify-center rounded-xl bg-brand-50">
-        <Ionicons name={icon} size={18} color={BrandColors.brand600} />
+        <Ionicons name={icon} size={18} color={colors.brand600} />
       </View>
       <Text className="text-xs text-ink-500">{label}</Text>
       <Text className="text-lg font-bold text-ink-900">{value}</Text>

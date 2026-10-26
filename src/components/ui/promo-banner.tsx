@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type PromoBannerProps = {
   title: string;
@@ -19,10 +19,11 @@ export function PromoBanner({
   onPress,
   trailing,
 }: PromoBannerProps) {
+  const colors = useThemeColors();
   const content = (
     <>
       <View className="h-11 w-11 items-center justify-center rounded-xl bg-brand-100">
-        <Ionicons name={icon} size={22} color={BrandColors.brand600} />
+        <Ionicons name={icon} size={22} color={colors.brand600} />
       </View>
       <View className="flex-1 gap-0.5">
         <Text className="text-base font-semibold text-ink-900">{title}</Text>

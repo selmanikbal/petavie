@@ -80,7 +80,11 @@ async function pickWithSourceDialog(): Promise<string | null> {
         },
       },
       { text: 'Vazgeç', style: 'cancel', onPress: () => resolve(null) },
-    ]);
+    ], {
+      // Android: tapping outside closes the dialog without any button press.
+      cancelable: true,
+      onDismiss: () => resolve(null),
+    });
   });
 }
 

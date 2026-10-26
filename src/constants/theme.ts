@@ -1,11 +1,13 @@
+import { useColorScheme } from 'react-native';
+
 /**
- * Brand colors for APIs that cannot take a className
- * (tab bar options, ActivityIndicator, status bar, native pickers).
+ * Colors for APIs that cannot take a className
+ * (icons, ActivityIndicator, placeholders, native pickers).
  *
- * Keep these in sync with `tailwind.config.js`; that file is the source of
- * truth for styling inside components.
+ * Keep these in sync with the CSS variables in `src/global.css`; that file is
+ * the source of truth for styling inside components.
  */
-export const BrandColors = {
+export const LightColors = {
   brand500: '#14b8a6',
   brand600: '#0d9488',
   brand100: '#ccfbf1',
@@ -19,7 +21,38 @@ export const BrandColors = {
   white: '#ffffff',
   success500: '#10b981',
   danger500: '#ef4444',
-} as const;
+};
+
+export type ThemeColors = typeof LightColors;
+
+export const DarkColors: ThemeColors = {
+  brand500: '#14b8a6',
+  brand600: '#2dd4bf',
+  brand100: '#134e4a',
+  ink500: '#94a3b8',
+  ink900: '#f1f5f9',
+  surface: '#1e293b',
+  surfaceCanvas: '#0f172a',
+  surfaceTint: '#134e4a',
+  surfaceSunken: '#334155',
+  placeholder: '#64748b',
+  white: '#ffffff',
+  success500: '#10b981',
+  danger500: '#f87171',
+};
+
+/** Theme-aware colors; re-renders when the system or in-app theme changes. */
+export function useThemeColors(): ThemeColors {
+  return useColorScheme() === 'dark' ? DarkColors : LightColors;
+}
+
+/** Active scheme for native pickers (`themeVariant`) and other platform APIs. */
+export function useThemeScheme(): 'light' | 'dark' {
+  return useColorScheme() === 'dark' ? 'dark' : 'light';
+}
+
+/** @deprecated Light palette only — use `useThemeColors()` inside components. */
+export const BrandColors = LightColors;
 
 /** Floating tab bar layout — keep in sync with `AppTabBar`. */
 export const TabBarLayout = {

@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { View } from 'react-native';
 
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type TimeFieldProps = {
   label: string;
@@ -25,6 +25,7 @@ export function TimeField({
   hint,
   testID,
 }: TimeFieldProps) {
+  const colors = useThemeColors();
   return (
     <FieldShell label={label} error={error} hint={hint}>
       <View
@@ -44,7 +45,7 @@ export function TimeField({
             width: '100%',
             height: 48,
             fontSize: 16,
-            color: BrandColors.ink900,
+            color: colors.ink900,
             colorScheme: 'light',
             WebkitAppearance: 'none',
             outline: 'none',

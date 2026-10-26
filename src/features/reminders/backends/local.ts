@@ -1,8 +1,4 @@
-import {
-  cancelReminderNotifications,
-  scheduleLocalReminderNotifications,
-} from '@/features/reminders/notifications/local-scheduler';
-import { serializeNotificationIds } from '@/features/reminders/schedule-utils';
+import { syncReminderNotifications } from '@/features/reminders/notifications/local-scheduler';
 import type { ReminderInput } from '@/features/reminders/schemas';
 import type { ReminderBackend } from '@/features/reminders/types';
 import {
@@ -36,18 +32,24 @@ function toFields(input: ReminderInput) {
   };
 }
 
-async function attachNotification(record: Reminder): Promise<Reminder> {
-  const notificationIds = await scheduleLocalReminderNotifications(record);
-  if (notificationIds.length === 0) return record;
-
+/** Reschedules the notification window, then returns the stored row. */
+async function syncAndReload(record: Reminder): Promise<Reminder> {
+  try {
+    await syncReminderNotifications({ requestPermission: true });
+  } catch {
+    // Saving the reminder must not fail because notifications could not be scheduled.
+    return record;
+  }
   const rows = await readReminders();
-  const updated: Reminder = {
-    ...record,
-    notification_ids: serializeNotificationIds(notificationIds),
-    notification_id: null,
-  };
-  await writeReminders(rows.map((row) => (row.id === record.id ? updated : row)));
-  return updated;
+  return rows.find((row) => row.id === record.id) ?? record;
+}
+
+async function syncQuietly(): Promise<void> {
+  try {
+    await syncReminderNotifications({ requestPermission: false });
+  } catch {
+    // Ignore — the window is rebuilt again on next app launch.
+  }
 }
 
 export const localReminderBackend: ReminderBackend = {
@@ -78,7 +80,7 @@ export const localReminderBackend: ReminderBackend = {
     };
 
     await writeReminders([...rows, record]);
-    return attachNotification(record);
+    return syncAndReload(record);
   },
 
   async update(reminderId, ownerId, input) {
@@ -89,7 +91,6 @@ export const localReminderBackend: ReminderBackend = {
     if (existing.completed_at) throw new AppError('Tamamlanan hatırlatma düzenlenemez.');
 
     await assertPetOwnedBy(input.petId, ownerId);
-    await cancelReminderNotifications(existing);
 
     const updated: Reminder = {
       ...existing,
@@ -100,7 +101,7 @@ export const localReminderBackend: ReminderBackend = {
     };
 
     await writeReminders(rows.map((row) => (row.id === reminderId ? updated : row)));
-    return attachNotification(updated);
+    return syncAndReload(updated);
   },
 
   async complete(reminderId, ownerId) {
@@ -108,8 +109,6 @@ export const localReminderBackend: ReminderBackend = {
     const existing = rows.find((row) => row.id === reminderId);
     if (!existing) throw new AppError('Bu hatırlatmayı bulamadık.');
     if (existing.owner_id !== ownerId) throw new AppError('Bu hatırlatmayı tamamlama yetkin yok.');
-
-    await cancelReminderNotifications(existing);
 
     const updated: Reminder = {
       ...existing,
@@ -120,6 +119,7 @@ export const localReminderBackend: ReminderBackend = {
     };
 
     await writeReminders(rows.map((row) => (row.id === reminderId ? updated : row)));
+    await syncQuietly();
     return updated;
   },
 
@@ -129,7 +129,7 @@ export const localReminderBackend: ReminderBackend = {
     if (!existing) throw new AppError('Bu hatırlatmayı bulamadık.');
     if (existing.owner_id !== ownerId) throw new AppError('Bu hatırlatmayı silme yetkin yok.');
 
-    await cancelReminderNotifications(existing);
     await writeReminders(rows.filter((row) => row.id !== reminderId));
+    await syncQuietly();
   },
 };

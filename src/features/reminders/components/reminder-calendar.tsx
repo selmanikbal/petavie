@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import {
   buildCalendarGrid,
   buildReminderDateIndex,
@@ -29,6 +29,7 @@ export function ReminderCalendar({
   visibleMonth,
   onVisibleMonthChange,
 }: ReminderCalendarProps) {
+  const colors = useThemeColors();
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
 
@@ -60,7 +61,7 @@ export function ReminderCalendar({
           onPress={() => shiftMonth(-1)}
           hitSlop={8}
           className="rounded-full p-2 active:bg-surface-canvas">
-          <Ionicons name="chevron-back" size={20} color={BrandColors.ink900} />
+          <Ionicons name="chevron-back" size={20} color={colors.ink900} />
         </Pressable>
 
         <Text className="text-base font-semibold text-ink-900">
@@ -74,7 +75,7 @@ export function ReminderCalendar({
           onPress={() => shiftMonth(1)}
           hitSlop={8}
           className="rounded-full p-2 active:bg-surface-canvas">
-          <Ionicons name="chevron-forward" size={20} color={BrandColors.ink900} />
+          <Ionicons name="chevron-forward" size={20} color={colors.ink900} />
         </Pressable>
       </View>
 
@@ -125,7 +126,7 @@ export function ReminderCalendar({
               {dayReminders.length > 0 ? (
                 <View className="mt-0.5 flex-row gap-0.5">
                   {hasActive ? (
-                    <View className="h-1.5 w-1.5 rounded-full bg-brand-600" />
+                    <View className="h-1.5 w-1.5 rounded-full bg-brand-solid" />
                   ) : null}
                   {hasCompleted && !hasActive ? (
                     <View className="h-1.5 w-1.5 rounded-full bg-ink-500" />

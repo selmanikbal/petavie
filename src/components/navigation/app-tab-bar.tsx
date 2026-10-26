@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { EdgeInsets } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BrandColors, TabBarLayout } from '@/constants/theme';
+import { useThemeColors, TabBarLayout } from '@/constants/theme';
 
 type TabRoute = { key: string; name: string; params?: object };
 
@@ -46,6 +46,7 @@ const TAB_ICONS_FOCUSED: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 /** Floating tab bar: inset from screen edges, rounded pill, teal active indicator. */
 export function AppTabBar({ state, descriptors, emitter, navigateToTab }: AppTabBarProps) {
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const bottomPad = Math.max(insets.bottom, 8) + TabBarLayout.bottomGap;
 
@@ -63,7 +64,7 @@ export function AppTabBar({ state, descriptors, emitter, navigateToTab }: AppTab
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
           const label = options.title ?? route.name;
-          const iconColor = isFocused ? BrandColors.brand500 : BrandColors.ink500;
+          const iconColor = isFocused ? colors.brand500 : colors.ink500;
           const iconName = isFocused
             ? (TAB_ICONS_FOCUSED[route.name] ?? 'ellipse')
             : (TAB_ICONS[route.name] ?? 'ellipse-outline');

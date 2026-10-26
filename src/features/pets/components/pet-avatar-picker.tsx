@@ -22,7 +22,7 @@ export function PetAvatarPicker({ pet }: PetAvatarPickerProps) {
         disabled={isPending}
         className="relative h-[7.75rem] w-[7.75rem] items-center justify-center">
         <Avatar uri={pet.avatar_url} name={pet.name} size="lg" />
-        <View className="absolute bottom-1 right-1 h-10 w-10 items-center justify-center rounded-full border-2 border-surface bg-brand-600 shadow-sm">
+        <View className="absolute bottom-1 right-1 h-10 w-10 items-center justify-center rounded-full border-2 border-surface bg-brand-solid shadow-sm">
           {isPending ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (

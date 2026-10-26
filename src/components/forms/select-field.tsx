@@ -4,7 +4,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 export type SelectOption<T extends string> = {
   value: T;
@@ -38,6 +38,7 @@ export function SelectField<T extends string>({
   hint,
   testID,
 }: SelectFieldProps<T>) {
+  const colors = useThemeColors();
   const [isOpen, setIsOpen] = useState(false);
   const insets = useSafeAreaInsets();
 
@@ -63,7 +64,7 @@ export function SelectField<T extends string>({
         <Text className={`text-base ${selected ? 'text-ink-900' : 'text-ink-500'}`}>
           {selected?.label ?? placeholder}
         </Text>
-        <Ionicons name="chevron-down" size={18} color={BrandColors.ink500} />
+        <Ionicons name="chevron-down" size={18} color={colors.ink500} />
       </Pressable>
 
       <Modal
@@ -117,7 +118,7 @@ export function SelectField<T extends string>({
                       {option.label}
                     </Text>
                     {isSelected ? (
-                      <Ionicons name="checkmark" size={20} color={BrandColors.brand600} />
+                      <Ionicons name="checkmark" size={20} color={colors.brand600} />
                     ) : null}
                   </Pressable>
                 );

@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
 import { Button } from '@/components/ui/button';
 import { IOS_PICKER_LOCALE } from '@/constants/locale';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors, useThemeScheme } from '@/constants/theme';
 import { coerceDate, formatDateTR } from '@/utils/date';
 
 type DatePickerDisplay = 'spinner' | 'calendar';
@@ -51,6 +51,8 @@ export function DateField({
   pickerDisplay = 'spinner',
   testID,
 }: DateFieldProps) {
+  const colors = useThemeColors();
+  const scheme = useThemeScheme();
   const isCalendar = pickerDisplay === 'calendar';
   const iosPickerDisplay = isCalendar ? 'inline' : 'spinner';
   const pickerHeight = isCalendar ? 340 : 216;
@@ -107,7 +109,7 @@ export function DateField({
         <Text className={`text-base ${displayValue ? 'text-ink-900' : 'text-ink-500'}`}>
           {displayValue ?? placeholder}
         </Text>
-        <Ionicons name="calendar-outline" size={18} color={BrandColors.ink500} />
+        <Ionicons name="calendar-outline" size={18} color={colors.ink500} />
       </Pressable>
 
       <Modal
@@ -134,9 +136,9 @@ export function DateField({
             </Text>
 
             {/*
-              Spinner needs an explicit height and light-theme colours — without
-              `textColor` / `themeVariant` the wheels can render white-on-white
-              inside our light modal, especially when the device is in dark mode.
+              Spinner needs an explicit height, and `themeVariant` + `textColor`
+              must match the active app theme — otherwise the wheels render
+              light-on-light or dark-on-dark inside the sheet.
             */}
             <View className="w-full items-center" style={{ height: pickerHeight }}>
               <DateTimePicker
@@ -144,8 +146,8 @@ export function DateField({
                 mode="date"
                 display={iosPickerDisplay}
                 locale={IOS_PICKER_LOCALE}
-                themeVariant="light"
-                textColor={BrandColors.ink900}
+                themeVariant={scheme}
+                textColor={colors.ink900}
                 minimumDate={minimumDate}
                 maximumDate={maximumDate}
                 style={{ width: '100%', height: pickerHeight }}

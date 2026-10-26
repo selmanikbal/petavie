@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 export type AccordionItem = {
   id: string;
@@ -17,6 +17,7 @@ type AccordionProps = {
 
 /** Single-open FAQ-style accordion. */
 export function Accordion({ items }: AccordionProps) {
+  const colors = useThemeColors();
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
@@ -43,7 +44,7 @@ export function Accordion({ items }: AccordionProps) {
               <Ionicons
                 name={isOpen ? 'chevron-up' : 'chevron-down'}
                 size={18}
-                color={BrandColors.ink500}
+                color={colors.ink500}
               />
             </Pressable>
 

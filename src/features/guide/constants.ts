@@ -15,3 +15,7 @@ export const CARE_SECTION_ORDER = [
   'exercise',
   'habitat',
 ] as const satisfies readonly (keyof AnimalCare)[];
+
+/** Guide photos come from Wikimedia Commons under CC BY / CC BY-SA licences. */
+export const GUIDE_IMAGE_CREDIT =
+  'Görseller: Wikimedia Commons. CC BY / CC BY-SA lisanslıdır; hakları ilgili fotoğrafçılara aittir.';

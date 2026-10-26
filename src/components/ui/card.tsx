@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 export const CARD_CLASS =
   'w-full rounded-2xl border border-surface-sunken bg-surface p-4 shadow-sm';
@@ -22,6 +22,7 @@ type ListItemProps = {
 
 /** Tappable row used by settings-style screens. */
 export function ListItem({ title, subtitle, leading, onPress, testID }: ListItemProps) {
+  const colors = useThemeColors();
   const content = (
     <>
       {leading}
@@ -36,7 +37,7 @@ export function ListItem({ title, subtitle, leading, onPress, testID }: ListItem
         ) : null}
       </View>
       {onPress ? (
-        <Ionicons name="chevron-forward" size={18} color={BrandColors.ink500} />
+        <Ionicons name="chevron-forward" size={18} color={colors.ink500} />
       ) : null}
     </>
   );

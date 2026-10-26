@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
 import { Button } from '@/components/ui/button';
 import { IOS_PICKER_LOCALE } from '@/constants/locale';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors, useThemeScheme } from '@/constants/theme';
 
 type TimeFieldProps = {
   label: string;
@@ -45,6 +45,8 @@ export function TimeField({
   hint,
   testID,
 }: TimeFieldProps) {
+  const colors = useThemeColors();
+  const scheme = useThemeScheme();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [draft, setDraft] = useState(() => parseTimeValue(value));
   const insets = useSafeAreaInsets();
@@ -95,7 +97,7 @@ export function TimeField({
         <Text className={`text-base ${displayValue ? 'text-ink-900' : 'text-ink-500'}`}>
           {displayValue ?? placeholder}
         </Text>
-        <Ionicons name="time-outline" size={18} color={BrandColors.ink500} />
+        <Ionicons name="time-outline" size={18} color={colors.ink500} />
       </Pressable>
 
       <Modal
@@ -127,8 +129,8 @@ export function TimeField({
                 mode="time"
                 display="spinner"
                 locale={IOS_PICKER_LOCALE}
-                themeVariant="light"
-                textColor={BrandColors.ink900}
+                themeVariant={scheme}
+                textColor={colors.ink900}
                 is24Hour
                 style={{ width: '100%', height: 216 }}
                 onChange={(_event, selected) => {

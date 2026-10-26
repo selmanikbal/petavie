@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { ErrorState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { ReminderCompactCard } from '@/features/reminders/components/reminder-compact-card';
 import { getUpcomingReminders } from '@/features/reminders/home-reminder-utils';
 import { useCompleteReminder } from '@/features/reminders/hooks/use-reminder-mutations';
@@ -17,6 +17,7 @@ type HomeReminderListProps = {
 };
 
 export function HomeReminderList({ filterPetId, emptyLabel }: HomeReminderListProps) {
+  const colors = useThemeColors();
   const reminders = useReminders();
   const completeReminder = useCompleteReminder();
   const [completingId, setCompletingId] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export function HomeReminderList({ filterPetId, emptyLabel }: HomeReminderListPr
   if (reminders.isPending) {
     return (
       <View className="items-center gap-2 py-6">
-        <ActivityIndicator color={BrandColors.brand500} />
+        <ActivityIndicator color={colors.brand500} />
         <Text className="text-sm text-ink-500">Hatırlatmalar yükleniyor…</Text>
       </View>
     );

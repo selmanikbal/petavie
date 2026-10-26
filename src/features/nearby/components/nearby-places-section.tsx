@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { FilterChips } from '@/components/ui/filter-chips';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { NEARBY_CATEGORIES, NEARBY_CATEGORY_LABELS } from '@/features/nearby/constants';
 import { NearbyPlaceCard } from '@/features/nearby/components/nearby-place-card';
 import { useNearbyPlaces } from '@/features/nearby/hooks/use-nearby-places';
@@ -15,6 +15,7 @@ const categoryOptions = NEARBY_CATEGORIES.map((id) => ({
 }));
 
 export function NearbyPlacesSection() {
+  const colors = useThemeColors();
   const [category, setCategory] = useState<NearbyPlaceCategory>('veterinary');
   const { location, places } = useNearbyPlaces(category);
 
@@ -33,7 +34,7 @@ export function NearbyPlacesSection() {
 
       {location.isPending ? (
         <View className="items-center gap-2 py-6">
-          <ActivityIndicator color={BrandColors.brand500} />
+          <ActivityIndicator color={colors.brand500} />
           <Text className="text-sm text-ink-500">Konumun alınıyor…</Text>
         </View>
       ) : location.isError ? (
@@ -47,7 +48,7 @@ export function NearbyPlacesSection() {
         </View>
       ) : places.isPending ? (
         <View className="items-center gap-2 py-6">
-          <ActivityIndicator color={BrandColors.brand500} />
+          <ActivityIndicator color={colors.brand500} />
           <Text className="text-sm text-ink-500">Yakındaki yerler aranıyor…</Text>
         </View>
       ) : places.isError ? (

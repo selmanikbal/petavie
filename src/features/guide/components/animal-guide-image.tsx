@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, View, type LayoutChangeEvent } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { getAnimalGuideImageUrl } from '@/features/guide/images';
 
 const LIST_THUMB_WIDTH = 64;
@@ -19,6 +19,7 @@ export function AnimalGuideImage({
   animalName,
   size = 'sm',
 }: AnimalGuideImageProps) {
+  const colors = useThemeColors();
   const uri = getAnimalGuideImageUrl(animalId);
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(Boolean(uri));
@@ -97,7 +98,7 @@ export function AnimalGuideImage({
           />
           {loading ? (
             <View className="absolute inset-0 items-center justify-center bg-surface-canvas">
-              <ActivityIndicator size="small" color={BrandColors.brand500} />
+              <ActivityIndicator size="small" color={colors.brand500} />
             </View>
           ) : null}
         </>
@@ -105,7 +106,7 @@ export function AnimalGuideImage({
         <View
           className="flex-1 items-center justify-center bg-surface-tint"
           style={isHero ? { minHeight: 120 } : { width: LIST_THUMB_WIDTH, height: LIST_THUMB_WIDTH }}>
-          <Ionicons name="paw" size={isHero ? 36 : 22} color={BrandColors.brand500} />
+          <Ionicons name="paw" size={isHero ? 36 : 22} color={colors.brand500} />
         </View>
       )}
     </View>

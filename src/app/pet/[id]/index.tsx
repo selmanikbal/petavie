@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { PromoBanner } from '@/components/ui/promo-banner';
 import { EmptyState, ErrorState, InlineMessage, LoadingState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { HealthRecordSection } from '@/features/health/components/health-record-section';
 import { MedicationSection } from '@/features/health/components/medication-section';
 import { PetWeightSection } from '@/features/health/components/pet-weight-section';
@@ -30,6 +30,7 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id'];
 
 export default function PetDetailScreen() {
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const petId = id ?? '';
   const router = useRouter();
@@ -95,7 +96,7 @@ export default function PetDetailScreen() {
           <HeaderBackButton iconOnly />
 
           <View className="flex-row items-center gap-1.5">
-            <Ionicons name="checkmark-circle" size={18} color={BrandColors.brand500} />
+            <Ionicons name="checkmark-circle" size={18} color={colors.brand500} />
             <Text className="text-base font-semibold text-ink-900">Dost Profili</Text>
           </View>
 

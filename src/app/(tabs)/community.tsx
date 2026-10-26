@@ -9,13 +9,14 @@ import { CARD_CLASS } from '@/components/ui/card';
 import { FilterChips } from '@/components/ui/filter-chips';
 import { SearchField } from '@/components/ui/search-field';
 import { EmptyState } from '@/components/ui/state-views';
-import { BrandColors, tabBarScrollInset } from '@/constants/theme';
+import { useThemeColors, tabBarScrollInset } from '@/constants/theme';
 import { AnimalGuideCard } from '@/features/guide/components/animal-guide-card';
-import { ALL_ANIMAL_CATEGORIES } from '@/features/guide/constants';
+import { ALL_ANIMAL_CATEGORIES, GUIDE_IMAGE_CREDIT } from '@/features/guide/constants';
 import { getGuideMeta, listGuideAnimals, listGuideCategories } from '@/features/guide/service';
 import { filterGuideAnimals } from '@/features/guide/utils';
 
 export default function CommunityScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const animals = listGuideAnimals();
@@ -73,7 +74,7 @@ export default function CommunityScreen() {
               onPress={() => router.push('/guide/general')}
               className={`${CARD_CLASS} flex-row items-center gap-3 active:opacity-90`}>
               <View className="h-16 w-16 items-center justify-center rounded-2xl bg-brand-100">
-                <Ionicons name="book" size={22} color={BrandColors.brand600} />
+                <Ionicons name="book" size={22} color={colors.brand600} />
               </View>
               <View className="min-w-0 flex-1 gap-0.5">
                 <Text className="text-base font-semibold text-ink-900">Genel bilgiler</Text>
@@ -81,7 +82,7 @@ export default function CommunityScreen() {
                   Tüm türler · bakım önerileri ve SSS
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={BrandColors.ink500} />
+              <Ionicons name="chevron-forward" size={18} color={colors.ink500} />
             </Pressable>
 
             {visibleAnimals.length === 0 ? (
@@ -105,6 +106,7 @@ export default function CommunityScreen() {
           </View>
 
           <Text className="mt-5 text-sm leading-5 text-ink-500">{meta.disclaimer}</Text>
+          <Text className="mt-2 text-xs leading-4 text-ink-500">{GUIDE_IMAGE_CREDIT}</Text>
         </ScrollView>
       </View>
     </SafeAreaView>

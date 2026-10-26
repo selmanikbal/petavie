@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ErrorState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { useDeleteVaccination } from '@/features/health/hooks/use-vaccination-mutations';
 import { useVaccinations } from '@/features/health/hooks/use-vaccinations';
 import { formatDateTR, fromISODate } from '@/utils/date';
@@ -18,6 +18,7 @@ type VaccinationSectionProps = {
 };
 
 export function VaccinationSection({ petId }: VaccinationSectionProps) {
+  const colors = useThemeColors();
   const router = useRouter();
   const vaccinations = useVaccinations(petId);
   const deleteVaccination = useDeleteVaccination(petId);
@@ -35,7 +36,7 @@ export function VaccinationSection({ petId }: VaccinationSectionProps) {
 
       {vaccinations.isPending ? (
         <View className="items-center gap-2 py-4">
-          <ActivityIndicator color={BrandColors.brand500} />
+          <ActivityIndicator color={colors.brand500} />
           <Text className="text-sm text-ink-500">Aşı kayıtları yükleniyor…</Text>
         </View>
       ) : vaccinations.isError ? (
@@ -79,7 +80,7 @@ export function VaccinationSection({ petId }: VaccinationSectionProps) {
                     onPress={() => setDeleteId(row.id)}
                     hitSlop={8}
                     className="rounded-full p-2 active:bg-surface-sunken">
-                    <Ionicons name="trash-outline" size={20} color={BrandColors.ink500} />
+                    <Ionicons name="trash-outline" size={20} color={colors.ink500} />
                   </Pressable>
                 </View>
               </View>

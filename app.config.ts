@@ -40,7 +40,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       ...config.ios,
       bundleIdentifier: env.bundleId,
-      supportsTablet: true,
+      // iPhone only: iPad would require iPad screenshots and an iPad-tested layout.
+      supportsTablet: false,
     },
     android: {
       ...config.android,

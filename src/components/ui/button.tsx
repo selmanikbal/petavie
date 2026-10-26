@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger';
 
@@ -15,7 +15,7 @@ type ButtonProps = {
 };
 
 const containerStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-brand-500 active:bg-brand-600',
+  primary: 'bg-brand-500 active:bg-brand-solid',
   secondary: 'border border-surface-sunken bg-surface active:bg-surface-canvas',
   soft: 'bg-brand-100 active:opacity-80',
   ghost: 'bg-transparent',
@@ -39,6 +39,7 @@ export function Button({
   accessibilityHint,
   testID,
 }: ButtonProps) {
+  const colors = useThemeColors();
   const isDisabled = disabled || loading;
 
   return (
@@ -56,8 +57,8 @@ export function Button({
         <ActivityIndicator
           color={
             variant === 'primary' || variant === 'danger'
-              ? BrandColors.white
-              : BrandColors.brand600
+              ? colors.white
+              : colors.brand600
           }
         />
       ) : (

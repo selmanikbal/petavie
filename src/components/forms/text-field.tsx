@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { TextInput, type KeyboardTypeOptions, type TextInputProps } from 'react-native';
 
 import { CONTROL_CLASS, controlBorderClass, FieldShell } from '@/components/forms/field-shell';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 type TextFieldProps = {
   label: string;
@@ -41,6 +41,7 @@ export function TextField({
   multiline = false,
   testID,
 }: TextFieldProps) {
+  const colors = useThemeColors();
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -56,7 +57,7 @@ export function TextField({
           onBlur?.();
         }}
         placeholder={placeholder}
-        placeholderTextColor={BrandColors.placeholder}
+        placeholderTextColor={colors.placeholder}
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}

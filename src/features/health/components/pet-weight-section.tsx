@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { ErrorState } from '@/components/ui/state-views';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { usePetWeights } from '@/features/health/hooks/use-pet-weights';
 import { useDeletePetWeight } from '@/features/health/hooks/use-weight-mutations';
 import { formatWeightKg } from '@/features/health/utils';
@@ -19,6 +19,7 @@ type PetWeightSectionProps = {
 };
 
 export function PetWeightSection({ petId }: PetWeightSectionProps) {
+  const colors = useThemeColors();
   const router = useRouter();
   const weights = usePetWeights(petId);
   const deleteWeight = useDeletePetWeight(petId);
@@ -36,7 +37,7 @@ export function PetWeightSection({ petId }: PetWeightSectionProps) {
 
       {weights.isPending ? (
         <View className="items-center gap-2 py-4">
-          <ActivityIndicator color={BrandColors.brand500} />
+          <ActivityIndicator color={colors.brand500} />
           <Text className="text-sm text-ink-500">Kilo kayıtları yükleniyor…</Text>
         </View>
       ) : weights.isError ? (
@@ -71,7 +72,7 @@ export function PetWeightSection({ petId }: PetWeightSectionProps) {
                     onPress={() => setDeleteId(row.id)}
                     hitSlop={8}
                     className="rounded-full p-2 active:bg-surface-sunken">
-                    <Ionicons name="trash-outline" size={20} color={BrandColors.ink500} />
+                    <Ionicons name="trash-outline" size={20} color={colors.ink500} />
                   </Pressable>
                 </View>
               </View>

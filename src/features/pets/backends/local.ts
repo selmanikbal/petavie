@@ -1,8 +1,9 @@
 import type { PetInput } from '@/features/pets/schemas';
 import type { PetBackend } from '@/features/pets/types';
-import { cancelReminderNotifications } from '@/features/reminders/notifications/local-scheduler';
+import { syncReminderNotifications } from '@/features/reminders/notifications/local-scheduler';
 import {
   deleteLocalPetAvatar,
+  resolvePetAvatarUri,
   saveLocalPetAvatar,
 } from '@/features/pets/photos/local-storage';
 import {
@@ -13,7 +14,6 @@ import {
   deleteRemindersForPet,
   deleteVaccinationsForPet,
   readPets,
-  readReminders,
   writePets,
 } from '@/services/demo/store';
 import type { Pet } from '@/types/database';
@@ -31,18 +31,25 @@ function toFields(input: PetInput) {
   };
 }
 
+/** Stored avatar paths are relative; expose an absolute uri to the UI. */
+function withResolvedAvatar(pet: Pet): Pet {
+  return { ...pet, avatar_url: resolvePetAvatarUri(pet.avatar_url) };
+}
+
 /** On-device pet storage — ownership filtered in code (`services/demo/store`). */
 export const localPetBackend: PetBackend = {
   async list(ownerId) {
     const pets = await readPets();
     return pets
       .filter((pet) => pet.owner_id === ownerId)
-      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .map(withResolvedAvatar);
   },
 
   async get(petId) {
     const pets = await readPets();
-    return pets.find((pet) => pet.id === petId) ?? null;
+    const pet = pets.find((row) => row.id === petId);
+    return pet ? withResolvedAvatar(pet) : null;
   },
 
   async create(ownerId, input) {
@@ -59,7 +66,7 @@ export const localPetBackend: PetBackend = {
     };
 
     await writePets([...pets, pet]);
-    return pet;
+    return withResolvedAvatar(pet);
   },
 
   async update(petId, input) {
@@ -74,7 +81,7 @@ export const localPetBackend: PetBackend = {
     };
 
     await writePets(pets.map((pet) => (pet.id === petId ? updated : pet)));
-    return updated;
+    return withResolvedAvatar(updated);
   },
 
   async updateAvatar(petId, ownerId, localImageUri) {
@@ -84,10 +91,7 @@ export const localPetBackend: PetBackend = {
       throw new AppError('Bu dostunu bulamadık.');
     }
 
-    if (existing.avatar_url) {
-      await deleteLocalPetAvatar(existing.avatar_url);
-    }
-
+    // Save the new file first (unique name busts the image cache), then drop the old one.
     const avatarUrl = await saveLocalPetAvatar(petId, localImageUri);
     const updated: Pet = {
       ...existing,
@@ -96,7 +100,11 @@ export const localPetBackend: PetBackend = {
     };
 
     await writePets(pets.map((pet) => (pet.id === petId ? updated : pet)));
-    return updated;
+
+    if (existing.avatar_url && existing.avatar_url !== avatarUrl) {
+      await deleteLocalPetAvatar(existing.avatar_url).catch(() => undefined);
+    }
+    return withResolvedAvatar(updated);
   },
 
   async remove(petId) {
@@ -109,11 +117,12 @@ export const localPetBackend: PetBackend = {
     await deleteHealthRecordsForPet(petId);
     await deleteVaccinationsForPet(petId);
     await deleteMedicationsForPet(petId);
-    const reminders = await readReminders();
-    for (const reminder of reminders.filter((row) => row.pet_id === petId)) {
-      await cancelReminderNotifications(reminder);
-    }
     await deleteRemindersForPet(petId);
     await writePets(pets.filter((pet) => pet.id !== petId));
+    try {
+      await syncReminderNotifications({ requestPermission: false });
+    } catch {
+      // Rebuilt again on next app launch.
+    }
   },
 };

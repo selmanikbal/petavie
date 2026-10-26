@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { CARD_CLASS } from '@/components/ui/card';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { SPECIES_LABELS } from '@/features/pets/schemas';
 import { REMINDER_TYPE_LABELS } from '@/features/reminders/schemas';
 import type { Pet, Reminder } from '@/types/database';
@@ -30,6 +30,7 @@ function formatReminderTime(remindAt: string): string {
 }
 
 export function ReminderTaskCard({ reminder, pet, active, onComplete }: ReminderTaskCardProps) {
+  const colors = useThemeColors();
   const router = useRouter();
   const time = formatReminderTime(reminder.remind_at);
   const petLabel = pet ? `${SPECIES_LABELS[pet.species]} (${pet.name})` : 'Dost';
@@ -43,7 +44,7 @@ export function ReminderTaskCard({ reminder, pet, active, onComplete }: Reminder
         className="gap-3 active:opacity-80">
         <View className="flex-row items-start gap-3">
           <View className="h-11 w-11 items-center justify-center rounded-xl bg-brand-100">
-            <Ionicons name={icon} size={22} color={BrandColors.brand600} />
+            <Ionicons name={icon} size={22} color={colors.brand600} />
           </View>
           <View className="flex-1 gap-1">
             <View className="flex-row items-center justify-between gap-2">
@@ -78,7 +79,7 @@ export function ReminderTaskCard({ reminder, pet, active, onComplete }: Reminder
           accessibilityRole="button"
           accessibilityLabel="Tamamlandı olarak işaretle"
           onPress={onComplete}
-          className="items-center rounded-xl bg-brand-500 py-3 active:bg-brand-600">
+          className="items-center rounded-xl bg-brand-500 py-3 active:bg-brand-solid">
           <Text className="text-sm font-semibold text-white">Tamamlandı Olarak İşaretle</Text>
         </Pressable>
       ) : null}

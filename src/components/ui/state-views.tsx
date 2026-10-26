@@ -1,16 +1,17 @@
 import { ActivityIndicator, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 
 /**
  * Loading / empty / error states.
  * Every screen renders one of these instead of a blank view.
  */
 export function LoadingState({ label = 'Yükleniyor…' }: { label?: string }) {
+  const colors = useThemeColors();
   return (
     <View className="flex-1 items-center justify-center gap-3" accessibilityRole="progressbar">
-      <ActivityIndicator color={BrandColors.brand500} />
+      <ActivityIndicator color={colors.brand500} />
       <Text className="text-base text-ink-500">{label}</Text>
     </View>
   );

@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
-import { BrandColors } from '@/constants/theme';
+import { useThemeColors } from '@/constants/theme';
 import { usePetAvatarUpload } from '@/features/pets/hooks/use-pet-avatar-upload';
 import { GENDER_LABELS, SPECIES_LABELS } from '@/features/pets/schemas';
 import { formatPetAgeDetailed } from '@/features/pets/utils';
@@ -14,6 +14,7 @@ type PetDetailHeroProps = {
 };
 
 export function PetDetailHero({ pet }: PetDetailHeroProps) {
+  const colors = useThemeColors();
   const { pickAndUpload, isPending, errorMessage } = usePetAvatarUpload(pet.id);
   const birthDate = fromISODate(pet.birth_date);
   const age = formatPetAgeDetailed(pet.birth_date);
@@ -36,7 +37,7 @@ export function PetDetailHero({ pet }: PetDetailHeroProps) {
             />
           ) : (
             <View className="flex-1 items-center justify-center gap-2 px-6">
-              <Ionicons name="paw" size={48} color={BrandColors.brand500} />
+              <Ionicons name="paw" size={48} color={colors.brand500} />
               <Text className="text-center text-sm font-medium text-ink-500">
                 Fotoğraf eklemek için dokun
               </Text>
@@ -48,7 +49,7 @@ export function PetDetailHero({ pet }: PetDetailHeroProps) {
           </View>
 
           <View
-            className="absolute bottom-3 right-3 h-11 w-11 items-center justify-center rounded-full border-2 border-surface bg-brand-600 shadow-sm"
+            className="absolute bottom-3 right-3 h-11 w-11 items-center justify-center rounded-full border-2 border-surface bg-brand-solid shadow-sm"
             style={{ zIndex: 10 }}>
             {isPending ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -87,9 +88,10 @@ export function PetDetailHero({ pet }: PetDetailHeroProps) {
 }
 
 function InfoChip({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+  const colors = useThemeColors();
   return (
     <View className="flex-row items-center gap-1.5 rounded-full bg-surface-tint px-3 py-2">
-      <Ionicons name={icon} size={14} color={BrandColors.brand600} />
+      <Ionicons name={icon} size={14} color={colors.brand600} />
       <Text className="text-xs font-medium text-ink-700">{label}</Text>
     </View>
   );
