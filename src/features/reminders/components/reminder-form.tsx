@@ -6,6 +6,7 @@ import { CalendarDateField } from '@/components/forms/calendar-date-field';
 import { SelectField, type SelectOption } from '@/components/forms/select-field';
 import { TextField } from '@/components/forms/text-field';
 import { TimeField } from '@/components/forms/time-field';
+import { useScrollToFirstError } from '@/components/forms/use-scroll-to-first-error';
 import { Button } from '@/components/ui/button';
 import { InlineMessage } from '@/components/ui/state-views';
 import { usePets } from '@/features/pets/hooks/use-pets';
@@ -37,6 +38,20 @@ const recurrenceOptions: SelectOption<ReminderRecurrence>[] = RECURRENCE_OPTIONS
   value,
   label: RECURRENCE_LABELS[value],
 }));
+
+/** On-screen order, used to find the first invalid field. */
+const FIELD_ORDER = [
+  'petId',
+  'type',
+  'title',
+  'scheduleMode',
+  'remindDate',
+  'recurrence',
+  'rangeStart',
+  'rangeEnd',
+  'remindTime',
+  'notes',
+] as const satisfies readonly (keyof ReminderFormValues)[];
 
 const emptyValues: ReminderFormValues = {
   petId: '',
@@ -78,6 +93,8 @@ export function ReminderForm({
     mode: 'onTouched',
   });
 
+  const { fieldRef, scrollToFirstError } = useScrollToFirstError(FIELD_ORDER);
+
   const scheduleMode = useWatch({ control, name: 'scheduleMode' });
   const rangeStart = useWatch({ control, name: 'rangeStart' });
 
@@ -85,183 +102,203 @@ export function ReminderForm({
     <View className="gap-4">
       {errorMessage ? <InlineMessage tone="error" message={errorMessage} /> : null}
 
-      <Controller
-        control={control}
-        name="petId"
-        render={({ field, fieldState }) => (
-          <SelectField
-            testID="reminder-pet"
-            label="Dost"
-            placeholder="Dost seç"
-            value={field.value || null}
-            options={petOptions}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="type"
-        render={({ field, fieldState }) => (
-          <SelectField
-            testID="reminder-type"
-            label="Tür"
-            value={field.value}
-            options={typeOptions}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="title"
-        render={({ field, fieldState }) => (
-          <TextField
-            testID="reminder-title"
-            label="Başlık"
-            placeholder="Kuduz aşısı tekrarı"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            autoCapitalize="sentences"
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="scheduleMode"
-        render={({ field, fieldState }) => (
-          <SelectField
-            testID="reminder-schedule-mode"
-            label="Hatırlatma türü"
-            value={field.value}
-            options={scheduleModeOptions}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-          />
-        )}
-      />
-
-      {scheduleMode === 'once' ? (
+      <View ref={fieldRef('petId')}>
         <Controller
           control={control}
-          name="remindDate"
+          name="petId"
           render={({ field, fieldState }) => (
-            <CalendarDateField
-              testID="reminder-date"
-              label="Tarih"
-              value={field.value}
+            <SelectField
+              testID="reminder-pet"
+              label="Dost"
+              placeholder="Dost seç"
+              value={field.value || null}
+              options={petOptions}
               onChange={field.onChange}
               onBlur={field.onBlur}
               error={fieldState.error?.message}
-              hint="Takvimden bir gün seç."
-              minimumDate={new Date()}
             />
           )}
         />
-      ) : (
-        <>
-          <Controller
-            control={control}
-            name="recurrence"
-            render={({ field, fieldState }) => (
-              <SelectField
-                testID="reminder-recurrence"
-                label="Tekrar"
-                placeholder="Tekrar sıklığı seç"
-                value={field.value}
-                options={recurrenceOptions}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
+      </View>
 
+      <View ref={fieldRef('type')}>
+        <Controller
+          control={control}
+          name="type"
+          render={({ field, fieldState }) => (
+            <SelectField
+              testID="reminder-type"
+              label="Tür"
+              value={field.value}
+              options={typeOptions}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+      </View>
+
+      <View ref={fieldRef('title')}>
+        <Controller
+          control={control}
+          name="title"
+          render={({ field, fieldState }) => (
+            <TextField
+              testID="reminder-title"
+              label="Başlık"
+              placeholder="Kuduz aşısı tekrarı"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              autoCapitalize="sentences"
+            />
+          )}
+        />
+      </View>
+
+      <View ref={fieldRef('scheduleMode')}>
+        <Controller
+          control={control}
+          name="scheduleMode"
+          render={({ field, fieldState }) => (
+            <SelectField
+              testID="reminder-schedule-mode"
+              label="Hatırlatma türü"
+              value={field.value}
+              options={scheduleModeOptions}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
+        />
+      </View>
+
+      {scheduleMode === 'once' ? (
+        <View ref={fieldRef('remindDate')}>
           <Controller
             control={control}
-            name="rangeStart"
+            name="remindDate"
             render={({ field, fieldState }) => (
               <CalendarDateField
-                testID="reminder-range-start"
-                label="Başlangıç tarihi"
+                testID="reminder-date"
+                label="Tarih"
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 error={fieldState.error?.message}
-                hint="Tekrarın başlayacağı gün."
+                hint="Takvimden bir gün seç."
                 minimumDate={new Date()}
               />
             )}
           />
+        </View>
+      ) : (
+        <>
+          <View ref={fieldRef('recurrence')}>
+            <Controller
+              control={control}
+              name="recurrence"
+              render={({ field, fieldState }) => (
+                <SelectField
+                  testID="reminder-recurrence"
+                  label="Tekrar"
+                  placeholder="Tekrar sıklığı seç"
+                  value={field.value}
+                  options={recurrenceOptions}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </View>
 
-          <Controller
-            control={control}
-            name="rangeEnd"
-            render={({ field, fieldState }) => (
-              <CalendarDateField
-                testID="reminder-range-end"
-                label="Bitiş tarihi"
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                hint="Tekrarın biteceği gün."
-                minimumDate={rangeStart ?? new Date()}
-              />
-            )}
-          />
+          <View ref={fieldRef('rangeStart')}>
+            <Controller
+              control={control}
+              name="rangeStart"
+              render={({ field, fieldState }) => (
+                <CalendarDateField
+                  testID="reminder-range-start"
+                  label="Başlangıç tarihi"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  hint="Tekrarın başlayacağı gün."
+                  minimumDate={new Date()}
+                />
+              )}
+            />
+          </View>
+
+          <View ref={fieldRef('rangeEnd')}>
+            <Controller
+              control={control}
+              name="rangeEnd"
+              render={({ field, fieldState }) => (
+                <CalendarDateField
+                  testID="reminder-range-end"
+                  label="Bitiş tarihi"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  hint="Tekrarın biteceği gün."
+                  minimumDate={rangeStart ?? new Date()}
+                />
+              )}
+            />
+          </View>
         </>
       )}
 
-      <Controller
-        control={control}
-        name="remindTime"
-        render={({ field, fieldState }) => (
-          <TimeField
-            testID="reminder-time"
-            label="Saat"
-            value={field.value}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            hint="Saat seçiciden bir zaman belirle."
-          />
-        )}
-      />
+      <View ref={fieldRef('remindTime')}>
+        <Controller
+          control={control}
+          name="remindTime"
+          render={({ field, fieldState }) => (
+            <TimeField
+              testID="reminder-time"
+              label="Saat"
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              hint="Saat seçiciden bir zaman belirle."
+            />
+          )}
+        />
+      </View>
 
-      <Controller
-        control={control}
-        name="notes"
-        render={({ field, fieldState }) => (
-          <TextField
-            testID="reminder-notes"
-            label="Not"
-            placeholder="Veteriner randevusu için…"
-            value={field.value}
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            error={fieldState.error?.message}
-            hint="İstersen boş bırakabilirsin."
-            autoCapitalize="sentences"
-            multiline
-          />
-        )}
-      />
+      <View ref={fieldRef('notes')}>
+        <Controller
+          control={control}
+          name="notes"
+          render={({ field, fieldState }) => (
+            <TextField
+              testID="reminder-notes"
+              label="Not"
+              placeholder="Veteriner randevusu için…"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              hint="İstersen boş bırakabilirsin."
+              autoCapitalize="sentences"
+              multiline
+            />
+          )}
+        />
+      </View>
 
       <Button
         testID="reminder-submit"
         label={submitLabel}
-        onPress={handleSubmit(onSubmit)}
+        onPress={handleSubmit(onSubmit, scrollToFirstError)}
         loading={isSubmitting}
       />
     </View>

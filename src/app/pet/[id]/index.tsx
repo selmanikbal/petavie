@@ -42,7 +42,7 @@ export default function PetDetailScreen() {
 
   if (pet.isPending) {
     return (
-      <View className="flex-1 bg-surface-canvas">
+      <View className="flex-1 bg-surface-canvas" style={{ paddingBottom: insets.bottom }}>
         <View className="px-4 pb-3" style={{ paddingTop: insets.top + 8 }}>
           <HeaderBackButton iconOnly />
         </View>
@@ -53,7 +53,7 @@ export default function PetDetailScreen() {
 
   if (pet.isError) {
     return (
-      <View className="flex-1 bg-surface-canvas">
+      <View className="flex-1 bg-surface-canvas" style={{ paddingBottom: insets.bottom }}>
         <View className="px-4 pb-3" style={{ paddingTop: insets.top + 8 }}>
           <HeaderBackButton iconOnly />
         </View>
@@ -69,7 +69,7 @@ export default function PetDetailScreen() {
 
   if (!pet.data) {
     return (
-      <View className="flex-1 bg-surface-canvas">
+      <View className="flex-1 bg-surface-canvas" style={{ paddingBottom: insets.bottom }}>
         <View className="px-4 pb-3" style={{ paddingTop: insets.top + 8 }}>
           <HeaderBackButton iconOnly />
         </View>
@@ -112,7 +112,10 @@ export default function PetDetailScreen() {
 
       <ScrollView
         className="flex-1"
-        contentContainerClassName="gap-5 px-5 py-5"
+        contentContainerClassName="gap-5 px-5 pt-5"
+        // Android draws under the system navigation bar (edge-to-edge): keep the
+        // last items (delete button) above it.
+        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
         showsVerticalScrollIndicator={false}>
         <PetDetailHero pet={data} />
         <PetDetailStats pet={data} />

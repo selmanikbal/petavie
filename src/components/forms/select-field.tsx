@@ -72,7 +72,8 @@ export function SelectField<T extends string>({
         transparent
         animationType="slide"
         onRequestClose={close}
-        statusBarTranslucent>
+        statusBarTranslucent
+        navigationBarTranslucent>
         <View className="flex-1 justify-end bg-black/40">
           {/*
             The backdrop is a sibling rather than the sheet's parent: nesting a

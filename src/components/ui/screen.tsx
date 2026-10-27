@@ -1,8 +1,18 @@
-import type { ReactNode } from 'react';
+import { createContext, useRef, type ComponentRef, type ReactNode, type RefObject } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import { tabBarScrollInset } from '@/constants/theme';
+
+/**
+ * The surrounding ScrollView of a scrollable Screen, so forms inside it can
+ * scroll a field into view (e.g. the first invalid field on submit).
+ */
+export type ScreenScrollInstance = ComponentRef<typeof ScrollView>;
+
+export const ScreenScrollContext = createContext<RefObject<ScreenScrollInstance | null> | null>(
+  null,
+);
 
 export type ScreenProps = {
   children: ReactNode;
@@ -39,6 +49,7 @@ export function Screen({
   className,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScreenScrollInstance>(null);
   const bottomInset = tabBarInset ? tabBarScrollInset(insets.bottom) : 0;
   const resolvedEdges = tabBarInset ? (['top'] as const) : edges;
 
@@ -55,16 +66,19 @@ export function Screen({
   return (
     <SafeAreaView className={`flex-1 bg-surface-canvas ${className ?? ''}`} edges={resolvedEdges}>
       {scrollable ? (
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName="items-center py-6"
-          contentContainerStyle={tabBarInset ? { paddingBottom: bottomInset } : undefined}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          showsVerticalScrollIndicator={false}>
-          {content}
-        </ScrollView>
+        <ScreenScrollContext.Provider value={scrollRef}>
+          <ScrollView
+            ref={scrollRef}
+            className="flex-1"
+            contentContainerClassName="items-center py-6"
+            contentContainerStyle={tabBarInset ? { paddingBottom: bottomInset } : undefined}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+            showsVerticalScrollIndicator={false}>
+            {content}
+          </ScrollView>
+        </ScreenScrollContext.Provider>
       ) : (
         <KeyboardAvoidingView
           className="flex-1"

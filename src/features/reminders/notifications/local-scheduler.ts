@@ -2,8 +2,8 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import {
+  LEGACY_REMINDER_CHANNEL_IDS,
   REMINDER_NOTIFICATION_CHANNEL_ID,
-  REMINDER_NOTIFICATION_SOUND,
 } from '@/features/reminders/notifications/constants';
 import {
   generateOccurrences,
@@ -40,15 +40,22 @@ export function configureLocalNotifications(): void {
   isConfigured = true;
 }
 
-/** Android: the channel decides the sound, so it must exist before scheduling. */
+/** Android: notifications need their channel to exist before scheduling. */
 export function ensureReminderChannel(): Promise<void> {
   if (Platform.OS !== 'android') return Promise.resolve();
 
-  channelReady ??= Notifications.setNotificationChannelAsync(REMINDER_NOTIFICATION_CHANNEL_ID, {
-    name: 'Hatırlatmalar',
-    importance: Notifications.AndroidImportance.HIGH,
-    sound: REMINDER_NOTIFICATION_SOUND,
-  })
+  channelReady ??= Promise.all(
+    LEGACY_REMINDER_CHANNEL_IDS.map((id) =>
+      Notifications.deleteNotificationChannelAsync(id).catch(() => undefined),
+    ),
+  )
+    .then(() =>
+      Notifications.setNotificationChannelAsync(REMINDER_NOTIFICATION_CHANNEL_ID, {
+        name: 'Hatırlatmalar',
+        importance: Notifications.AndroidImportance.HIGH,
+        sound: 'default',
+      }),
+    )
     .then(() => undefined)
     .catch((error: unknown) => {
       channelReady = null;
@@ -123,7 +130,7 @@ async function runSync(requestPermission: boolean): Promise<void> {
           title: reminder.title,
           body: reminder.notes ?? 'Hatırlatma zamanı geldi.',
           data: { reminderId: reminder.id },
-          sound: REMINDER_NOTIFICATION_SOUND,
+          sound: 'default',
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,

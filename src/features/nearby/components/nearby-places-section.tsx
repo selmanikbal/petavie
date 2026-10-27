@@ -1,76 +1,48 @@
-import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Platform, Pressable, Text, View } from 'react-native';
 
-import { FilterChips } from '@/components/ui/filter-chips';
 import { useThemeColors } from '@/constants/theme';
-import { NEARBY_CATEGORIES, NEARBY_CATEGORY_LABELS } from '@/features/nearby/constants';
-import { NearbyPlaceCard } from '@/features/nearby/components/nearby-place-card';
-import { useNearbyPlaces } from '@/features/nearby/hooks/use-nearby-places';
-import type { NearbyPlaceCategory } from '@/features/nearby/types';
-import { toUserFacingError } from '@/utils/errors';
+import {
+  NEARBY_CATEGORIES,
+  NEARBY_CATEGORY_ICONS,
+  NEARBY_CATEGORY_LABELS,
+} from '@/features/nearby/constants';
+import { searchCategoryInMaps } from '@/features/nearby/service';
 
-const categoryOptions = NEARBY_CATEGORIES.map((id) => ({
-  id,
-  label: NEARBY_CATEGORY_LABELS[id],
-}));
+const MAPS_APP_NAME = Platform.OS === 'ios' ? 'Apple Haritalar' : 'Google Haritalar';
 
+/** Home-screen shortcuts that search nearby pet places in the phone's maps app. */
 export function NearbyPlacesSection() {
   const colors = useThemeColors();
-  const [category, setCategory] = useState<NearbyPlaceCategory>('veterinary');
-  const { location, places } = useNearbyPlaces(category);
 
   return (
     <View className="gap-3">
       <View className="gap-0.5">
         <Text className="text-lg font-bold text-ink-900">Yakınımdaki Yerler</Text>
-        <Text className="text-sm text-ink-500">Konumuna göre 5 km içindeki işletmeler</Text>
+        <Text className="text-sm text-ink-500">{MAPS_APP_NAME}'da yakınındakiler açılır</Text>
       </View>
 
-      <FilterChips
-        options={categoryOptions}
-        value={category}
-        onChange={(id) => setCategory(id as NearbyPlaceCategory)}
-      />
-
-      {location.isPending ? (
-        <View className="items-center gap-2 py-6">
-          <ActivityIndicator color={colors.brand500} />
-          <Text className="text-sm text-ink-500">Konumun alınıyor…</Text>
-        </View>
-      ) : location.isError ? (
-        <View className="gap-2 rounded-xl border border-surface-sunken bg-surface px-4 py-3">
-          <Text className="text-sm text-ink-500">
-            {toUserFacingError(location.error).message}
-          </Text>
-          <Pressable accessibilityRole="button" onPress={() => void location.refetch()}>
-            <Text className="text-sm font-semibold text-brand-600">Tekrar dene</Text>
+      <View className="flex-row gap-2">
+        {NEARBY_CATEGORIES.map((category) => (
+          <Pressable
+            key={category}
+            accessibilityRole="button"
+            accessibilityLabel={`${NEARBY_CATEGORY_LABELS[category]} haritada ara`}
+            onPress={() => searchCategoryInMaps(category)}
+            className="flex-1 items-center gap-2 rounded-2xl border border-surface-sunken bg-surface px-2 py-4 active:opacity-80">
+            <View className="h-10 w-10 items-center justify-center rounded-xl bg-brand-50">
+              <Ionicons name={NEARBY_CATEGORY_ICONS[category]} size={20} color={colors.brand600} />
+            </View>
+            <Text className="text-sm font-semibold text-ink-900">
+              {NEARBY_CATEGORY_LABELS[category]}
+            </Text>
+            <View className="flex-row items-center gap-1">
+              <Ionicons name="map-outline" size={12} color={colors.ink500} />
+              <Text className="text-xs text-ink-500">Haritada gör</Text>
+            </View>
           </Pressable>
-        </View>
-      ) : places.isPending ? (
-        <View className="items-center gap-2 py-6">
-          <ActivityIndicator color={colors.brand500} />
-          <Text className="text-sm text-ink-500">Yakındaki yerler aranıyor…</Text>
-        </View>
-      ) : places.isError ? (
-        <View className="gap-2 rounded-xl border border-surface-sunken bg-surface px-4 py-3">
-          <Text className="text-sm text-ink-500">
-            {toUserFacingError(places.error).message}
-          </Text>
-          <Pressable accessibilityRole="button" onPress={() => void places.refetch()}>
-            <Text className="text-sm font-semibold text-brand-600">Tekrar dene</Text>
-          </Pressable>
-        </View>
-      ) : places.data && places.data.length > 0 ? (
-        <View className="gap-2">
-          {places.data.map((place) => (
-            <NearbyPlaceCard key={place.id} place={place} />
-          ))}
-        </View>
-      ) : (
-        <Text className="text-sm text-ink-500">
-          Bu kategoride yakınınızda kayıtlı bir işletme bulunamadı.
-        </Text>
-      )}
+        ))}
+      </View>
     </View>
   );
 }

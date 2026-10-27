@@ -38,7 +38,8 @@ export function ConfirmDialog({
       transparent
       animationType="fade"
       onRequestClose={onCancel}
-      statusBarTranslucent>
+      statusBarTranslucent
+      navigationBarTranslucent>
       {/* The backdrop is not tappable on purpose: the choice must be explicit. */}
       <View className="flex-1 items-center justify-center bg-black/40 px-6">
         <View
