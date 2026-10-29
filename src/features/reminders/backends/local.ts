@@ -1,6 +1,8 @@
+import { listReminderDatesInRange } from '@/features/reminders/calendar-utils';
 import { syncReminderNotifications } from '@/features/reminders/notifications/local-scheduler';
 import type { ReminderInput } from '@/features/reminders/schemas';
 import type { ReminderBackend } from '@/features/reminders/types';
+import { getCompletedOccurrences } from '@/features/reminders/utils';
 import {
   createId,
   readPets,
@@ -8,7 +10,29 @@ import {
   writeReminders,
 } from '@/services/demo/store';
 import type { Reminder } from '@/types/database';
+import { fromISODate } from '@/utils/date';
 import { AppError } from '@/utils/errors';
+
+/** True when every occurrence of a recurring series is in `done`. */
+function isSeriesFinished(reminder: Reminder, done: Set<string>): boolean {
+  const start = fromISODate(reminder.range_start);
+  const end = reminder.range_end ? fromISODate(reminder.range_end) : null;
+  if (!start || !end) return false;
+
+  // Walk the series in 60-day windows (the date helper caps each call at 100 dates).
+  let windowStart = start;
+  let sawAny = false;
+  while (windowStart <= end) {
+    const windowEnd = new Date(windowStart);
+    windowEnd.setDate(windowEnd.getDate() + 59);
+    const dates = listReminderDatesInRange(reminder, windowStart, windowEnd > end ? end : windowEnd);
+    if (dates.some((iso) => !done.has(iso))) return false;
+    sawAny ||= dates.length > 0;
+    windowStart = new Date(windowEnd);
+    windowStart.setDate(windowStart.getDate() + 1);
+  }
+  return sawAny;
+}
 
 async function assertPetOwnedBy(petId: string, ownerId: string) {
   const pets = await readPets();
@@ -73,6 +97,7 @@ export const localReminderBackend: ReminderBackend = {
       owner_id: ownerId,
       ...toFields(input),
       completed_at: null,
+      completed_occurrences: [],
       notification_id: null,
       notification_ids: null,
       created_at: now,
@@ -119,6 +144,37 @@ export const localReminderBackend: ReminderBackend = {
     };
 
     await writeReminders(rows.map((row) => (row.id === reminderId ? updated : row)));
+    await syncQuietly();
+    return updated;
+  },
+
+  async completeOccurrence(reminderId, ownerId, occurrenceDate) {
+    const rows = await readReminders();
+    const existing = rows.find((row) => row.id === reminderId);
+    if (!existing) throw new AppError('Bu hatırlatmayı bulamadık.');
+    if (existing.owner_id !== ownerId) throw new AppError('Bu hatırlatmayı tamamlama yetkin yok.');
+
+    // A one-off reminder has a single occurrence: completing it completes the reminder.
+    if (existing.schedule_mode !== 'recurring') {
+      return localReminderBackend.complete(reminderId, ownerId);
+    }
+
+    const done = new Set(getCompletedOccurrences(existing));
+    done.add(occurrenceDate);
+
+    const finished = isSeriesFinished(existing, done);
+    const now = new Date().toISOString();
+
+    const updated: Reminder = {
+      ...existing,
+      completed_occurrences: [...done].sort(),
+      // Only the last remaining occurrence closes the whole series.
+      completed_at: finished ? now : null,
+      updated_at: now,
+    };
+
+    await writeReminders(rows.map((row) => (row.id === reminderId ? updated : row)));
+    // Drops this day's pending notification; the rest of the series stays scheduled.
     await syncQuietly();
     return updated;
   },

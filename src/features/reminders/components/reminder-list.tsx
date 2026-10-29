@@ -10,10 +10,10 @@ import {
 } from '@/features/reminders/hooks/use-reminder-mutations';
 import { useReminders } from '@/features/reminders/hooks/use-reminders';
 import { ReminderTaskCard } from '@/features/reminders/components/reminder-task-card';
-import { reminderOccursOnDate } from '@/features/reminders/calendar-utils';
-import { isReminderActive, sortReminders } from '@/features/reminders/utils';
-import { formatDateTR, fromISODate } from '@/utils/date';
-import type { Pet } from '@/types/database';
+import { listReminderDatesInRange, reminderOccursOnDate } from '@/features/reminders/calendar-utils';
+import { isOccurrenceDone, isReminderActive, sortReminders } from '@/features/reminders/utils';
+import { formatDateTR, fromISODate, toISODate } from '@/utils/date';
+import type { Pet, Reminder } from '@/types/database';
 import { toUserFacingError } from '@/utils/errors';
 
 type ReminderListProps = {
@@ -25,6 +25,14 @@ type ReminderListProps = {
   showDelete?: boolean;
   emptyActiveLabel?: string;
 };
+
+/** First occurrence of a series that is not done yet (falls back to today). */
+function nextOpenOccurrence(reminder: Reminder): string {
+  const start = fromISODate(reminder.range_start);
+  const end = reminder.range_end ? fromISODate(reminder.range_end) : start;
+  const dates = start && end ? listReminderDatesInRange(reminder, start, end) : [];
+  return dates.find((iso) => !isOccurrenceDone(reminder, iso)) ?? toISODate(new Date());
+}
 
 export function ReminderList({
   petsById,
@@ -62,6 +70,10 @@ export function ReminderList({
     );
   }
 
+  // With a calendar day selected, "done" means that day's occurrence is done.
+  const isOpen = (row: Reminder) =>
+    filterDate ? !isOccurrenceDone(row, filterDate) : isReminderActive(row);
+
   const allRows = sortReminders(reminders.data ?? []);
   let rows = allRows;
 
@@ -72,7 +84,7 @@ export function ReminderList({
     rows = rows.filter((row) => row.pet_id === filterPetId);
   }
   if (activeOnly) {
-    rows = rows.filter(isReminderActive);
+    rows = rows.filter(isOpen);
   }
 
   if (allRows.length === 0) {
@@ -99,8 +111,13 @@ export function ReminderList({
           <ReminderTaskCard
             reminder={row}
             pet={petsById.get(row.pet_id)}
-            active={isReminderActive(row)}
-            onComplete={() => completeReminder.mutate(row.id)}
+            active={isOpen(row)}
+            onComplete={() =>
+              completeReminder.mutate({
+                reminderId: row.id,
+                occurrenceDate: filterDate ?? nextOpenOccurrence(row),
+              })
+            }
           />
           {showDelete ? (
             <Pressable

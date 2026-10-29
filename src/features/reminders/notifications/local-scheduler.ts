@@ -12,7 +12,8 @@ import {
 } from '@/features/reminders/schedule-utils';
 import { readReminders, writeReminders } from '@/services/demo/store';
 import type { Reminder } from '@/types/database';
-import { fromISODate } from '@/utils/date';
+import { getCompletedOccurrences } from '@/features/reminders/utils';
+import { fromISODate, toISODate } from '@/utils/date';
 
 /**
  * iOS keeps at most 64 pending local notifications per app and silently drops
@@ -95,13 +96,14 @@ function upcomingOccurrences(reminder: Reminder): Date[] {
   if (!remindTime || !rangeStart) return [];
 
   const rangeEnd = reminder.range_end ? fromISODate(reminder.range_end) : null;
+  const done = new Set(getCompletedOccurrences(reminder));
   return generateOccurrences({
     scheduleMode: reminder.schedule_mode,
     recurrence: reminder.recurrence,
     rangeStart,
     rangeEnd,
     remindTime,
-  });
+  }).filter((date) => !done.has(toISODate(date)));
 }
 
 async function runSync(requestPermission: boolean): Promise<void> {

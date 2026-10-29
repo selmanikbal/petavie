@@ -1,11 +1,13 @@
 import { listReminderDatesInRange } from '@/features/reminders/calendar-utils';
-import { isReminderActive } from '@/features/reminders/utils';
+import { isOccurrenceDone, isReminderActive } from '@/features/reminders/utils';
 import type { Reminder } from '@/types/database';
 import { fromISODate, toISODate } from '@/utils/date';
 
 export type UpcomingReminderItem = {
   reminder: Reminder;
   occurrenceAt: Date;
+  /** `YYYY-MM-DD` of this occurrence. */
+  occurrenceDate: string;
 };
 
 function stripTime(date: Date): Date {
@@ -79,9 +81,10 @@ export function getUpcomingReminders(
     const dates = listOccurrenceDatesInWindow(reminder, today, windowEnd);
 
     for (const iso of dates) {
+      if (isOccurrenceDone(reminder, iso)) continue;
       const occurrenceAt = combineDateAndRemindTime(iso, reminder.remind_at);
       if (!occurrenceAt) continue;
-      items.push({ reminder, occurrenceAt });
+      items.push({ reminder, occurrenceAt, occurrenceDate: iso });
     }
   }
 

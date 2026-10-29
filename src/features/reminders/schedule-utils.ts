@@ -25,6 +25,27 @@ export function serializeNotificationIds(ids: string[]): string | null {
   return ids.length > 0 ? JSON.stringify(ids) : null;
 }
 
+/**
+ * Date of the `index`-th occurrence (0 = first) counted from `start`.
+ * Monthly series keep the start's day of month and fall back to the month's
+ * last day when it is shorter (31 Oct → 30 Nov → 31 Dec → 28 Feb).
+ */
+export function occurrenceDateAt(start: Date, recurrence: ReminderRecurrence, index: number): Date {
+  const date = new Date(start);
+  if (recurrence === 'daily') {
+    date.setDate(start.getDate() + index);
+  } else if (recurrence === 'weekly') {
+    date.setDate(start.getDate() + index * 7);
+  } else {
+    const targetMonth = start.getMonth() + index;
+    const lastDay = new Date(start.getFullYear(), targetMonth + 1, 0).getDate();
+    date.setDate(1);
+    date.setMonth(targetMonth);
+    date.setDate(Math.min(start.getDate(), lastDay));
+  }
+  return date;
+}
+
 export function combineDateAndTime(date: Date, time: string): Date {
   const [hours, minutes] = time.split(':').map(Number);
   const combined = new Date(date);
@@ -54,19 +75,12 @@ export function generateOccurrences(input: {
   end.setHours(23, 59, 59, 999);
 
   const occurrences: Date[] = [];
-  let current = new Date(start);
 
-  while (current.getTime() <= end.getTime() && occurrences.length < MAX_SCHEDULED_OCCURRENCES) {
+  for (let index = 0; occurrences.length < MAX_SCHEDULED_OCCURRENCES; index += 1) {
+    const current = occurrenceDateAt(start, input.recurrence, index);
+    if (current.getTime() > end.getTime()) break;
     if (current.getTime() > Date.now()) {
-      occurrences.push(new Date(current));
-    }
-
-    if (input.recurrence === 'daily') {
-      current.setDate(current.getDate() + 1);
-    } else if (input.recurrence === 'weekly') {
-      current.setDate(current.getDate() + 7);
-    } else {
-      current.setMonth(current.getMonth() + 1);
+      occurrences.push(current);
     }
   }
 

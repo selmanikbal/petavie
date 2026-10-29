@@ -28,6 +28,14 @@ export function completeReminder(reminderId: string, ownerId: string): Promise<R
   return reminderBackend.complete(reminderId, ownerId);
 }
 
+export function completeReminderOccurrence(
+  reminderId: string,
+  ownerId: string,
+  occurrenceDate: string,
+): Promise<Reminder> {
+  return reminderBackend.completeOccurrence(reminderId, ownerId, occurrenceDate);
+}
+
 export function deleteReminder(reminderId: string, ownerId: string): Promise<void> {
   return reminderBackend.remove(reminderId, ownerId);
 }

@@ -1,4 +1,5 @@
-import type { Reminder, ReminderRecurrence } from '@/types/database';
+import { occurrenceDateAt } from '@/features/reminders/schedule-utils';
+import type { Reminder } from '@/types/database';
 import { fromISODate, toISODate } from '@/utils/date';
 
 export type CalendarCell = {
@@ -10,20 +11,6 @@ export type CalendarCell = {
 
 function stripTime(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function advanceDate(date: Date, recurrence: ReminderRecurrence): void {
-  if (recurrence === 'daily') {
-    date.setDate(date.getDate() + 1);
-    return;
-  }
-
-  if (recurrence === 'weekly') {
-    date.setDate(date.getDate() + 7);
-    return;
-  }
-
-  date.setMonth(date.getMonth() + 1);
 }
 
 /** Lists ISO dates a reminder falls on within an inclusive view range. */
@@ -51,18 +38,21 @@ export function listReminderDatesInRange(
   if (!seriesStart || !seriesEnd || !reminder.recurrence) return [];
 
   const dates: string[] = [];
+  const first = stripTime(seriesStart);
   const last = stripTime(seriesEnd) < end ? stripTime(seriesEnd) : end;
-  let current = stripTime(seriesStart);
 
-  while (current < start && current <= seriesEnd) {
-    advanceDate(current, reminder.recurrence);
-  }
+  // Jump close to the view for daily/weekly series instead of walking from day one.
+  const periodDays = reminder.recurrence === 'daily' ? 1 : reminder.recurrence === 'weekly' ? 7 : 0;
+  let index =
+    periodDays > 0 && start > first
+      ? Math.max(0, Math.floor(Math.round((start.getTime() - first.getTime()) / 86_400_000) / periodDays) - 1)
+      : 0;
 
-  while (current <= last && current <= seriesEnd && dates.length < 100) {
-    if (current >= start) {
-      dates.push(toISODate(current));
-    }
-    advanceDate(current, reminder.recurrence);
+  while (dates.length < 100) {
+    const current = occurrenceDateAt(first, reminder.recurrence, index);
+    if (current > last) break;
+    if (current >= start) dates.push(toISODate(current));
+    index += 1;
   }
 
   return dates;

@@ -5,7 +5,7 @@ import { LOCAL_OWNER_ID } from '@/constants/owner';
 import { reminderKeys } from '@/features/reminders/hooks/use-reminders';
 import type { ReminderInput } from '@/features/reminders/schemas';
 import {
-  completeReminder,
+  completeReminderOccurrence,
   createReminder,
   deleteReminder,
   updateReminder,
@@ -41,7 +41,8 @@ export function useCompleteReminder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (reminderId: string) => completeReminder(reminderId, LOCAL_OWNER_ID),
+    mutationFn: ({ reminderId, occurrenceDate }: { reminderId: string; occurrenceDate: string }) =>
+      completeReminderOccurrence(reminderId, LOCAL_OWNER_ID, occurrenceDate),
     onSuccess: (record) => {
       analytics.track(AnalyticsEvents.reminderCompleted);
       queryClient.setQueryData(reminderKeys.detail(record.id), record);

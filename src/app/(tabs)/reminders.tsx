@@ -15,7 +15,7 @@ import { ReminderCalendar } from '@/features/reminders/components/reminder-calen
 import { ReminderList } from '@/features/reminders/components/reminder-list';
 import { useReminders } from '@/features/reminders/hooks/use-reminders';
 import { reminderOccursOnDate } from '@/features/reminders/calendar-utils';
-import { isReminderActive } from '@/features/reminders/utils';
+import { isOccurrenceDone } from '@/features/reminders/utils';
 import { formatDateTR, fromISODate, toISODate } from '@/utils/date';
 
 export default function RemindersScreen() {
@@ -50,7 +50,7 @@ export default function RemindersScreen() {
     reminders.data?.filter(
       (row) =>
         reminderOccursOnDate(row, selectedDate) &&
-        isReminderActive(row) &&
+        !isOccurrenceDone(row, selectedDate) &&
         (!filterPetId || row.pet_id === filterPetId),
     ) ?? [];
 

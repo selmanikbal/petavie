@@ -172,6 +172,12 @@ export type Database = {
           /** `YYYY-MM-DD`, set when `schedule_mode = recurring`. */
           range_end: string | null;
           completed_at: string | null;
+          /**
+           * Recurring reminders: `YYYY-MM-DD` dates already marked done. The whole
+           * series is completed (`completed_at`) only after its last occurrence.
+           * Missing on rows saved by older versions — treat as empty.
+           */
+          completed_occurrences?: string[] | null;
           /** Legacy single notification id; prefer `notification_ids`. */
           notification_id: string | null;
           /** JSON array of scheduled local notification identifiers. */
@@ -192,6 +198,7 @@ export type Database = {
           range_start: string;
           range_end?: string | null;
           completed_at?: string | null;
+          completed_occurrences?: string[] | null;
           notification_id?: string | null;
           notification_ids?: string | null;
         };
@@ -206,6 +213,7 @@ export type Database = {
           range_start?: string;
           range_end?: string | null;
           completed_at?: string | null;
+          completed_occurrences?: string[] | null;
           notification_id?: string | null;
           notification_ids?: string | null;
         };

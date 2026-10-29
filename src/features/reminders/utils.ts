@@ -46,6 +46,17 @@ export function isReminderActive(reminder: Reminder): boolean {
   return reminder.completed_at === null;
 }
 
+/** Dates (`YYYY-MM-DD`) of a recurring reminder that were already marked done. */
+export function getCompletedOccurrences(reminder: Pick<Reminder, 'completed_occurrences'>): string[] {
+  return Array.isArray(reminder.completed_occurrences) ? reminder.completed_occurrences : [];
+}
+
+/** Whether the occurrence on `isoDate` is done (or the whole reminder is). */
+export function isOccurrenceDone(reminder: Reminder, isoDate: string): boolean {
+  if (reminder.completed_at !== null) return true;
+  return getCompletedOccurrences(reminder).includes(isoDate);
+}
+
 export function sortReminders(rows: Reminder[]): Reminder[] {
   return [...rows].sort((a, b) => {
     const aDone = a.completed_at !== null;

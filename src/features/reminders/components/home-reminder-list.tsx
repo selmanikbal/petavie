@@ -52,20 +52,25 @@ export function HomeReminderList({ filterPetId, emptyLabel }: HomeReminderListPr
 
   return (
     <View className="gap-2">
-      {items.map(({ reminder, occurrenceAt }) => (
+      {items.map(({ reminder, occurrenceAt, occurrenceDate }) => {
+        const key = `${reminder.id}-${occurrenceDate}`;
+        return (
         <ReminderCompactCard
-          key={`${reminder.id}-${occurrenceAt.toISOString()}`}
+          key={key}
           reminder={reminder}
           occurrenceAt={occurrenceAt}
-          completing={completingId === reminder.id && completeReminder.isPending}
+          completing={completingId === key && completeReminder.isPending}
           onComplete={() => {
-            setCompletingId(reminder.id);
-            completeReminder.mutate(reminder.id, {
-              onSettled: () => setCompletingId(null),
-            });
+            setCompletingId(key);
+            // Completes only this day's occurrence; a recurring series continues.
+            completeReminder.mutate(
+              { reminderId: reminder.id, occurrenceDate },
+              { onSettled: () => setCompletingId(null) },
+            );
           }}
         />
-      ))}
+        );
+      })}
     </View>
   );
 }
