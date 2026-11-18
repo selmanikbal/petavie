@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
 
 import { useThemeColors } from '@/constants/theme';
-import { ThemeToggleButton } from '@/features/settings/components/theme-toggle-button';
 
 type AppTopBarProps = {
   title: string;
@@ -10,6 +10,7 @@ type AppTopBarProps = {
 
 export function AppTopBar({ title }: AppTopBarProps) {
   const colors = useThemeColors();
+  const router = useRouter();
   return (
     <View className="mb-5 flex-row items-center justify-between">
       <View className="flex-row items-center gap-2.5">
@@ -18,7 +19,14 @@ export function AppTopBar({ title }: AppTopBarProps) {
         </View>
         <Text className="text-lg font-bold text-ink-900">{title}</Text>
       </View>
-      <ThemeToggleButton />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Ayarlar"
+        hitSlop={8}
+        onPress={() => router.push('/settings')}
+        className="h-10 w-10 items-center justify-center rounded-2xl border border-surface-sunken bg-surface">
+        <Ionicons name="settings-outline" size={18} color={colors.ink900} />
+      </Pressable>
     </View>
   );
 }

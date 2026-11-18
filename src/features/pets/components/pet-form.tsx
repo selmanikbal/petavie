@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { DateField } from '@/components/forms/date-field';
 import { SelectField, type SelectOption } from '@/components/forms/select-field';
 import { TextField } from '@/components/forms/text-field';
+import { useUnsavedChangesGuard } from '@/components/forms/use-unsaved-changes-guard';
 import { Button } from '@/components/ui/button';
 import { InlineMessage } from '@/components/ui/state-views';
 import {
@@ -54,11 +55,17 @@ export function PetForm({
   errorMessage,
   onSubmit,
 }: PetFormProps) {
-  const { control, handleSubmit } = useForm<PetFormValues, unknown, PetInput>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<PetFormValues, unknown, PetInput>({
     resolver: zodResolver(petSchema),
     defaultValues: initialValues ?? emptyValues,
     mode: 'onTouched',
   });
+
+  const guardSubmit = useUnsavedChangesGuard(isDirty, errorMessage);
 
   return (
     <View className="gap-4">
@@ -169,7 +176,7 @@ export function PetForm({
       <Button
         testID="pet-submit"
         label={submitLabel}
-        onPress={handleSubmit(onSubmit)}
+        onPress={handleSubmit(guardSubmit(onSubmit))}
         loading={isSubmitting}
       />
     </View>

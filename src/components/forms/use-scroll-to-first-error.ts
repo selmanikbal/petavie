@@ -1,9 +1,9 @@
 import { useContext, useRef, type ComponentRef } from 'react';
 import type { View } from 'react-native';
 
-type ViewInstance = ComponentRef<typeof View>;
-
 import { ScreenScrollContext } from '@/components/ui/screen';
+
+type ViewInstance = ComponentRef<typeof View>;
 
 /** Space left above the field so its label stays visible. */
 const TOP_GAP = 16;

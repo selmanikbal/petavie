@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 
+import { useDoubleBackToExit } from '@/components/navigation/use-double-back-to-exit';
 import { AppTopBar } from '@/components/ui/app-top-bar';
 import { FilterChips } from '@/components/ui/filter-chips';
 import { Screen } from '@/components/ui/screen';
@@ -15,6 +16,7 @@ import { toUserFacingError } from '@/utils/errors';
 export default function HomeScreen() {
   const router = useRouter();
   const pets = usePets();
+  useDoubleBackToExit();
   const hasPets = (pets.data?.length ?? 0) > 0;
   const petsById = useMemo(
     () => new Map((pets.data ?? []).map((pet) => [pet.id, pet])),

@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, View, type LayoutChangeEvent } from 'react-native';
 
 import { useThemeColors } from '@/constants/theme';
@@ -30,11 +30,15 @@ export function AnimalGuideImage({
   const isHero = size === 'hero';
   const showFallback = !uri || failed;
 
-  useEffect(() => {
+  // Reset image state when the animal changes (adjusting state during render).
+  const [shownKey, setShownKey] = useState(`${animalId}|${uri ?? ''}`);
+  const currentKey = `${animalId}|${uri ?? ''}`;
+  if (currentKey !== shownKey) {
+    setShownKey(currentKey);
     setFailed(false);
     setLoading(Boolean(uri));
     setIntrinsicSize(null);
-  }, [animalId, uri]);
+  }
 
   const layoutSize = useMemo(() => {
     if (!intrinsicSize || intrinsicSize.width <= 0) {

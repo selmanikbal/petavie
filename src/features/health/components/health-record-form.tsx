@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { DateField } from '@/components/forms/date-field';
 import { TextField } from '@/components/forms/text-field';
+import { useUnsavedChangesGuard } from '@/components/forms/use-unsaved-changes-guard';
 import { Button } from '@/components/ui/button';
 import { InlineMessage } from '@/components/ui/state-views';
 import {
@@ -35,11 +36,17 @@ export function HealthRecordForm({
   errorMessage,
   onSubmit,
 }: HealthRecordFormProps) {
-  const { control, handleSubmit } = useForm<HealthRecordFormValues, unknown, HealthRecordInput>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<HealthRecordFormValues, unknown, HealthRecordInput>({
     resolver: zodResolver(healthRecordSchema),
     defaultValues: initialValues ?? emptyValues,
     mode: 'onTouched',
   });
+
+  const guardSubmit = useUnsavedChangesGuard(isDirty, errorMessage);
 
   return (
     <View className="gap-4">
@@ -117,7 +124,7 @@ export function HealthRecordForm({
       <Button
         testID="health-record-submit"
         label={submitLabel}
-        onPress={handleSubmit(onSubmit)}
+        onPress={handleSubmit(guardSubmit(onSubmit))}
         loading={isSubmitting}
       />
     </View>

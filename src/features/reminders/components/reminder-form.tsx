@@ -7,6 +7,7 @@ import { SelectField, type SelectOption } from '@/components/forms/select-field'
 import { TextField } from '@/components/forms/text-field';
 import { TimeField } from '@/components/forms/time-field';
 import { useScrollToFirstError } from '@/components/forms/use-scroll-to-first-error';
+import { useUnsavedChangesGuard } from '@/components/forms/use-unsaved-changes-guard';
 import { Button } from '@/components/ui/button';
 import { InlineMessage } from '@/components/ui/state-views';
 import { usePets } from '@/features/pets/hooks/use-pets';
@@ -87,7 +88,11 @@ export function ReminderForm({
     label: pet.name,
   }));
 
-  const { control, handleSubmit } = useForm<ReminderFormValues, unknown, ReminderInput>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<ReminderFormValues, unknown, ReminderInput>({
     resolver: zodResolver(reminderSchema),
     defaultValues: initialValues ?? emptyValues,
     mode: 'onTouched',
@@ -97,6 +102,8 @@ export function ReminderForm({
 
   const scheduleMode = useWatch({ control, name: 'scheduleMode' });
   const rangeStart = useWatch({ control, name: 'rangeStart' });
+
+  const guardSubmit = useUnsavedChangesGuard(isDirty, errorMessage);
 
   return (
     <View className="gap-4">
@@ -298,7 +305,7 @@ export function ReminderForm({
       <Button
         testID="reminder-submit"
         label={submitLabel}
-        onPress={handleSubmit(onSubmit, scrollToFirstError)}
+        onPress={handleSubmit(guardSubmit(onSubmit), scrollToFirstError)}
         loading={isSubmitting}
       />
     </View>

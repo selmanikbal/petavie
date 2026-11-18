@@ -65,6 +65,7 @@ export default function RootLayout() {
             <Stack.Screen name="pet" />
             <Stack.Screen name="guide" />
             <Stack.Screen name="reminder" />
+            <Stack.Screen name="settings" />
           </Stack>
           {/* After Stack: its effects run last, so a notification tap wins over the index redirect. */}
           <NotificationSetup />

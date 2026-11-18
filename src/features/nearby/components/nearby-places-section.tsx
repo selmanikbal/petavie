@@ -19,7 +19,7 @@ export function NearbyPlacesSection() {
     <View className="gap-3">
       <View className="gap-0.5">
         <Text className="text-lg font-bold text-ink-900">Yakınımdaki Yerler</Text>
-        <Text className="text-sm text-ink-500">{MAPS_APP_NAME}'da yakınındakiler açılır</Text>
+        <Text className="text-sm text-ink-500">{`${MAPS_APP_NAME}'da yakınındakiler açılır`}</Text>
       </View>
 
       <View className="flex-row gap-2">

@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { DateField } from '@/components/forms/date-field';
 import { TextField } from '@/components/forms/text-field';
+import { useUnsavedChangesGuard } from '@/components/forms/use-unsaved-changes-guard';
 import { Button } from '@/components/ui/button';
 import { InlineMessage } from '@/components/ui/state-views';
 import {
@@ -32,11 +33,17 @@ export function PetWeightForm({
   errorMessage,
   onSubmit,
 }: PetWeightFormProps) {
-  const { control, handleSubmit } = useForm<PetWeightFormValues, unknown, PetWeightInput>({
+  const {
+    control,
+    handleSubmit,
+    formState: { isDirty },
+  } = useForm<PetWeightFormValues, unknown, PetWeightInput>({
     resolver: zodResolver(petWeightSchema),
     defaultValues: emptyValues,
     mode: 'onTouched',
   });
+
+  const guardSubmit = useUnsavedChangesGuard(isDirty, errorMessage);
 
   return (
     <View className="gap-4">
@@ -97,7 +104,7 @@ export function PetWeightForm({
       <Button
         testID="pet-weight-submit"
         label={submitLabel}
-        onPress={handleSubmit(onSubmit)}
+        onPress={handleSubmit(guardSubmit(onSubmit))}
         loading={isSubmitting}
       />
     </View>
