@@ -9,5 +9,5 @@ export const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${A
 export const APP_STORE_REVIEW_URL = `itms-apps://apps.apple.com/app/id${APP_STORE_ID}?action=write-review`;
 export const PLAY_STORE_NATIVE_URL = `market://details?id=${ANDROID_PACKAGE}`;
 
-export const PRIVACY_POLICY_URL = 'https://claude.ai/artifact/Akqzwg56UGD5Uhj5FGSuWT';
+export const PRIVACY_POLICY_URL = 'https://petavie.app/gizlilik/';
 export const SUPPORT_EMAIL = 'selman.ikbal@gmail.com';
